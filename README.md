@@ -5,7 +5,7 @@ _Estación de monitoreo medioambiental y de calidad del aire de bajo costo_
 _Instrumentos y aplicaciones mínimas para la implementación._
 
 * Node-RED
-> **Nota** Para el correcto funcionamiento de node-RED y el nodo de XMPP
+> **Nota** Para el correcto funcionamiento de node-RED
 
 ## Instalación
 Script de instalación de node-RED para SO Debian (Raspbian):
