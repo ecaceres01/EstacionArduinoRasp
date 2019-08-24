@@ -1,0 +1,986 @@
+[
+    {
+        "id": "bfd286.1bcab578",
+        "type": "tab",
+        "label": "Estación de Monitoreo",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "a3fe03a9.076e5",
+        "type": "serial in",
+        "z": "bfd286.1bcab578",
+        "name": "Arduino",
+        "serial": "b3859026.a92f2",
+        "x": 70,
+        "y": 120,
+        "wires": [
+            [
+                "b863673f.84b168"
+            ]
+        ]
+    },
+    {
+        "id": "b863673f.84b168",
+        "type": "json",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 210,
+        "y": 120,
+        "wires": [
+            [
+                "7bd235d8.4e4e04",
+                "87521804.a2b978",
+                "f0981a27.e17de8",
+                "2dd69671.236142",
+                "ff7834e2.1d7028",
+                "65faea12.1cf0c4",
+                "f27202f6.1fe598",
+                "172100c8.89a86f"
+            ]
+        ]
+    },
+    {
+        "id": "7bd235d8.4e4e04",
+        "type": "function",
+        "z": "bfd286.1bcab578",
+        "name": "AM2315",
+        "func": "var temperatura = {payload: msg.payload.TempAM2315, topic: \"AM2315\"};\nvar humedad = {payload: msg.payload.HumAM2315, topic: \"AM2315\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempAM2315.toString();\nmsgTemp += \"°C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumAM2315.toString();\nmsgHum += \"%\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
+        "outputs": 4,
+        "noerr": 0,
+        "x": 420,
+        "y": 120,
+        "wires": [
+            [
+                "f0bd0046.9159e8"
+            ],
+            [
+                "15409eb3.a991a9"
+            ],
+            [
+                "cff18554.ddc6b"
+            ],
+            [
+                "6860b9be.6e5068"
+            ]
+        ],
+        "outputLabels": [
+            "Temperatura",
+            "Humedad",
+            "Texto Temp",
+            "Texto Hum"
+        ]
+    },
+    {
+        "id": "2dd69671.236142",
+        "type": "function",
+        "z": "bfd286.1bcab578",
+        "name": "Medio Ambiente",
+        "func": "var windDirection = {payload: msg.payload.WindDirection};\n\nmsgWS = msg.payload.WindSpeed.toString();\nmsgWS += \" Km/h\";\nvar windSpeed = {payload: msgWS};\n\nmsgPS = msg.payload.Pressure.toString();\nmsgPS += \" hPa\";\nvar pressure = {payload: 1.02};\n\nreturn [windSpeed, windDirection, pressure];",
+        "outputs": 3,
+        "noerr": 0,
+        "x": 420,
+        "y": 400,
+        "wires": [
+            [
+                "c4ec2431.e06f58"
+            ],
+            [
+                "91e58670.7d19f8"
+            ],
+            [
+                "56104351.a5101c"
+            ]
+        ],
+        "outputLabels": [
+            "Wind Speed",
+            "Wind Direction",
+            "Pressure"
+        ]
+    },
+    {
+        "id": "9f6bb12c.cff038",
+        "type": "simpletime",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "x": 150,
+        "y": 720,
+        "wires": [
+            [
+                "6be675ac.1f79a4"
+            ]
+        ]
+    },
+    {
+        "id": "38ac27bf.1297f8",
+        "type": "file",
+        "z": "bfd286.1bcab578",
+        "name": "Log.csv",
+        "filename": "/home/pi/Estacion/log.csv",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "false",
+        "x": 920,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d9d7ac59.3dcc8",
+        "type": "file",
+        "z": "bfd286.1bcab578",
+        "name": "Ultimo dato",
+        "filename": "/home/pi/Estacion/last.csv",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "true",
+        "x": 910,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "87521804.a2b978",
+        "type": "function",
+        "z": "bfd286.1bcab578",
+        "name": "DHT22",
+        "func": "var temperatura = {payload: msg.payload.TempDHT22, topic: \"DHT22\"};\nvar humedad = {payload: msg.payload.HumDHT22, topic: \"DHT22\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDHT22.toString();\nmsgTemp += \"°C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumDHT22.toString();\nmsgHum += \"%\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
+        "outputs": 4,
+        "noerr": 0,
+        "x": 420,
+        "y": 220,
+        "wires": [
+            [
+                "f0bd0046.9159e8"
+            ],
+            [
+                "15409eb3.a991a9"
+            ],
+            [
+                "8c0ec1a8.e4ab2"
+            ],
+            [
+                "3feeced7.e9370a"
+            ]
+        ],
+        "outputLabels": [
+            "Temperatura",
+            "Humedad",
+            "Texto Temp",
+            "Texto Hum"
+        ]
+    },
+    {
+        "id": "f0981a27.e17de8",
+        "type": "function",
+        "z": "bfd286.1bcab578",
+        "name": "DS18B20",
+        "func": "var temperatura = {payload: msg.payload.TempDS18B20, topic: \"DS18B20\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDS18B20.toString();\nmsgTemp += \"°C\";\n\nvar temp = {payload: msgTemp};\n\nreturn [temperatura, temp];",
+        "outputs": 2,
+        "noerr": 0,
+        "x": 420,
+        "y": 300,
+        "wires": [
+            [
+                "f0bd0046.9159e8"
+            ],
+            [
+                "440e2c25.8868d4"
+            ]
+        ],
+        "outputLabels": [
+            "Temperatura",
+            "Texto Temp"
+        ]
+    },
+    {
+        "id": "f0bd0046.9159e8",
+        "type": "ui_chart",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "group": "b5a3dfb2.622908",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "Temperaturas",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "dd HH:mm",
+        "interpolate": "linear",
+        "nodata": "Esperando datos",
+        "dot": false,
+        "ymin": "-10",
+        "ymax": "50",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 660,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cff18554.ddc6b",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "241e6786.1a591",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "AM2315",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 640,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "6860b9be.6e5068",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "2aeb4a4d.ce0066",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "AM2315",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 640,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "8c0ec1a8.e4ab2",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "241e6786.1a591",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "DHT22",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 640,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "3feeced7.e9370a",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "2aeb4a4d.ce0066",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "DHT22",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 640,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "440e2c25.8868d4",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "241e6786.1a591",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "DS18B20",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 640,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "91e58670.7d19f8",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "5cf572.107d529",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Dirección del viento:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 680,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "8c08c538.658568",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "a8e47590.47a68",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "CO",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 630,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "65faea12.1cf0c4",
+        "type": "function",
+        "z": "bfd286.1bcab578",
+        "name": "Calidad del Aire",
+        "func": "var factor = -1/10000;\n\nmsgCO = msg.payload.CO.toString();\nmsgCO *= factor;\nmsgCO = msgCO.toFixed(2);\nmsgSO2 = msg.payload.SO2.toString();\nmsgSO2 *= factor;\nmsgSO2 = msgSO2.toFixed(2);\nmsgNO2 = msg.payload.NO2.toString();\nmsgNO2 *= factor;\nmsgNO2 = msgNO2.toFixed(2);\nvar CO = {payload: msgCO};\nvar SO2 = {payload: msgSO2};\nvar NO2 = {payload: msgNO2};\n\nreturn [CO, SO2, NO2];\n",
+        "outputs": 3,
+        "noerr": 0,
+        "x": 420,
+        "y": 540,
+        "wires": [
+            [
+                "8c08c538.658568"
+            ],
+            [
+                "3deb08c0.b44b88"
+            ],
+            [
+                "13af869.2a152f9"
+            ]
+        ],
+        "outputLabels": [
+            "CO",
+            "SO2",
+            "NO2"
+        ]
+    },
+    {
+        "id": "13af869.2a152f9",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "a8e47590.47a68",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "NO2",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 630,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "3deb08c0.b44b88",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "a8e47590.47a68",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "SO2",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 630,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "ff7834e2.1d7028",
+        "type": "function",
+        "z": "bfd286.1bcab578",
+        "name": "Wind Direction Image",
+        "func": "var winddir = msg.payload.WindDirection;\n\nif (winddir === 0){\n    msg.payload = \"/windn.png\";\n} else if (winddir > 0 && winddir < 90){\n    msg.payload = \"/windne.png\";\n} else if (winddir == 90){\n    msg.payload = \"/winde.png\";\n} else if (winddir > 90 && winddir < 180){\n    msg.payload = \"/windse.png\";\n} else if (winddir == 180){\n    msg.payload = \"/winds.png\";\n} else if (winddir > 180 && winddir < 270){\n    msg.payload = \"/windsw.png\";\n} else if (winddir == 270){\n    msg.payload = \"/windw.png\";\n} else if (winddir > 270 && winddir < 360){\n    msg.payload = \"/windnw.png\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 440,
+        "y": 480,
+        "wires": [
+            [
+                "a90578f3.70b7c"
+            ]
+        ]
+    },
+    {
+        "id": "a90578f3.70b7c",
+        "type": "ui_template",
+        "z": "bfd286.1bcab578",
+        "group": "5cf572.107d529",
+        "name": "Wind Direction Template",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<p>&nbsp;</p>\n<p><img style=\"display: block; margin-top: auto; margin-bottom: auto; margin-left: auto; margin-right: auto;\" src={{msg.payload}} width=\"92\" height=\"92\"/></p>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 690,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c4ec2431.e06f58",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "5cf572.107d529",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Velocidad del viento:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 680,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "56104351.a5101c",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "5cf572.107d529",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Presión atmosférica:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 680,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "2e1925a1.158842",
+        "type": "csv",
+        "z": "bfd286.1bcab578",
+        "name": "CSV sin nombres",
+        "sep": ";",
+        "hdrin": "",
+        "hdrout": false,
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2",
+        "skip": "0",
+        "x": 730,
+        "y": 700,
+        "wires": [
+            [
+                "38ac27bf.1297f8"
+            ]
+        ]
+    },
+    {
+        "id": "15409eb3.a991a9",
+        "type": "ui_chart",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "group": "4eda906e.557f6",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "Humedades",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "dd HH:mm",
+        "interpolate": "linear",
+        "nodata": "Esperando datos",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#ff8040",
+            "#000000",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 650,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6be675ac.1f79a4",
+        "type": "function",
+        "z": "bfd286.1bcab578",
+        "name": "Correción + DateTime",
+        "func": "var DateTime = msg.myyear + \"-\" + \n    msg.mymonthn + \"-\" +\n    msg.mydom + \" \" + \n    msg.mytimes;\nmsg.payload.DateTime = DateTime;\n\nvar factor = -1/10000;\nmsgCO = msg.payload.CO;\nmsgCO *= factor;\nmsg.payload.CO = parseFloat(msgCO.toFixed(2));\nmsgSO2 = msg.payload.SO2;\nmsgSO2 *= factor;\nmsg.payload.SO2 = parseFloat(msgSO2.toFixed(2));\nmsgNO2 = msg.payload.NO2;\nmsgNO2 *= factor;\nmsg.payload.NO2 = parseFloat(msgNO2.toFixed(2));\n\nmsg.payload.Pressure = 1.02;\n\nmsg.payload.Rain = 0.0;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 340,
+        "y": 720,
+        "wires": [
+            [
+                "e13d9b5e.2a49f",
+                "c46bdd47.a95b78"
+            ]
+        ]
+    },
+    {
+        "id": "e13d9b5e.2a49f",
+        "type": "fs-ops-access",
+        "z": "bfd286.1bcab578",
+        "name": "Check File",
+        "path": "/home/pi/Estacion/",
+        "pathType": "str",
+        "filename": "log.csv",
+        "filenameType": "str",
+        "read": true,
+        "write": true,
+        "throwerror": true,
+        "x": 530,
+        "y": 720,
+        "wires": [
+            [
+                "2e1925a1.158842",
+                "29bd28d1.f5368"
+            ],
+            [
+                "eaecfd57.fa13b8"
+            ]
+        ],
+        "outputLabels": [
+            "todo",
+            "error"
+        ]
+    },
+    {
+        "id": "eaecfd57.fa13b8",
+        "type": "csv",
+        "z": "bfd286.1bcab578",
+        "name": "CSV con nombres",
+        "sep": ";",
+        "hdrin": "",
+        "hdrout": true,
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2",
+        "skip": "0",
+        "x": 730,
+        "y": 740,
+        "wires": [
+            [
+                "38ac27bf.1297f8"
+            ]
+        ]
+    },
+    {
+        "id": "29bd28d1.f5368",
+        "type": "csv",
+        "z": "bfd286.1bcab578",
+        "name": "CSV último dato",
+        "sep": ";",
+        "hdrin": "",
+        "hdrout": false,
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2",
+        "skip": "0",
+        "x": 720,
+        "y": 780,
+        "wires": [
+            [
+                "d9d7ac59.3dcc8"
+            ]
+        ]
+    },
+    {
+        "id": "f27202f6.1fe598",
+        "type": "link out",
+        "z": "bfd286.1bcab578",
+        "name": "to SCV",
+        "links": [
+            "ec9ca494.fcdfb",
+            "f0e9500.825d5b"
+        ],
+        "x": 315,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ec9ca494.fcdfb",
+        "type": "link in",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "links": [
+            "f27202f6.1fe598"
+        ],
+        "x": 35,
+        "y": 720,
+        "wires": [
+            [
+                "9f6bb12c.cff038"
+            ]
+        ]
+    },
+    {
+        "id": "c46bdd47.a95b78",
+        "type": "file",
+        "z": "bfd286.1bcab578",
+        "name": "\"bonito\"",
+        "filename": "/home/pi/Estacion/datos.json",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "true",
+        "x": 520,
+        "y": 760,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8dce8705.5d18a",
+        "type": "http response",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 570,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "1f9355d0.036d72",
+        "type": "http in",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "url": "/bonito",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 90,
+        "y": 880,
+        "wires": [
+            [
+                "37bf0fe0.05f2c"
+            ]
+        ]
+    },
+    {
+        "id": "37bf0fe0.05f2c",
+        "type": "file in",
+        "z": "bfd286.1bcab578",
+        "name": "leer bonito",
+        "filename": "/home/pi/Estacion/datos.json",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "x": 270,
+        "y": 880,
+        "wires": [
+            [
+                "5a1b5efe.8b20f8"
+            ]
+        ]
+    },
+    {
+        "id": "5a1b5efe.8b20f8",
+        "type": "json",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 430,
+        "y": 880,
+        "wires": [
+            [
+                "8dce8705.5d18a"
+            ]
+        ]
+    },
+    {
+        "id": "aa07e361.96e1e8",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Captura",
+        "info": "Lectura de datos desde Arduino mediante puerto Serial,\nenviado en formato json y los envía como {payload}",
+        "x": 70,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ffce9f15.24e788",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Funciones",
+        "info": "Funciones escritas en JS que captura el dato\nrequerido, y les modifica el formato para poder\nser mostrados por la UI de Node-RED.",
+        "x": 420,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "37cbe05e.dd6c5",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Dashboard",
+        "info": "Sección donde se generan los dashboard que se\nmuestran en la UI de Node-RED.\n\nel módulo de dashboard se necesita descargar",
+        "x": 640,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "bcac520d.1beba",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Link",
+        "info": "Función nativa de Node-RED que permite realizar una\nsimple comunicación hacia otro nodo sin necesidad de\nunirlos por la \"línea\".\n\nEsta corresponde a la salida, la cual debe ser \npareada con una entrada.",
+        "x": 310,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "d2df2308.97b0f",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Parseo",
+        "info": "Función que permite parsear el mensaje json enviado\na diversos {payloads}",
+        "x": 210,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "fb5854dc.73984",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Link",
+        "info": "Salida del link, dentro de éste se puede declarar a\ncual link de entrada corresponde",
+        "x": 50,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "28202cc1.4b8a44",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "DateTime",
+        "info": "\"simpletime\" es una módulo descargable de Node-RED\nque permite, de forma simple obtener diversos tipos\nde mensajes con la fecha y hora.\n\nLa función \"DateTime\" parsea lo recibido desde el \nnodo \"simpletime\" para construir un mensaje con el\nformato \"YYYY-MM-DD hh:mm:ss\"",
+        "x": 260,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "ec9c6820.5e8308",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "CheckFile",
+        "info": "El nodo \"Check File\" revisa si el archivo \"log.csv\"\nexiste, y dependiendo de su resultado genera el \narchivo o sigue agregando datos al archivo existente.",
+        "x": 500,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "b42263a9.7db8",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "CSV",
+        "info": "Diversos constructores para generar el archivo CSV.",
+        "x": 690,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "8b4c10bb.ef9e08",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Save File",
+        "info": "Nodos que guardan los archivos dentro de la carpeta\nseleccionada.",
+        "x": 920,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "204ac7d4.7f0d48",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "JSON to GET",
+        "info": "archivo json para metodo GET de API",
+        "x": 510,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "bb968127.1d352",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "GET",
+        "info": "Generador web para datos para metodo GET",
+        "x": 90,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "e508b473.6c18c8",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Read File",
+        "info": "Nodo que permite leer archivo seleccionado.",
+        "x": 280,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "f6805913.b11d8",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Parser",
+        "info": "Nodo que permite parsear los datos a json.",
+        "x": 430,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "3e95fee0.d06c9a",
+        "type": "comment",
+        "z": "bfd286.1bcab578",
+        "name": "Response",
+        "info": "Respuesta para petición GET",
+        "x": 580,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "172100c8.89a86f",
+        "type": "debug",
+        "z": "bfd286.1bcab578",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 190,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "b3859026.a92f2",
+        "type": "serial-port",
+        "z": "",
+        "serialport": "/dev/ttyACM0",
+        "serialbaud": "9600",
+        "databits": "8",
+        "parity": "none",
+        "stopbits": "1",
+        "newline": "\\n",
+        "bin": "false",
+        "out": "char",
+        "addchar": false,
+        "responsetimeout": "10000"
+    },
+    {
+        "id": "b5a3dfb2.622908",
+        "type": "ui_group",
+        "z": "",
+        "name": "TEMPERATURAS GRÁFICAS",
+        "tab": "9e7a4c12.052c4",
+        "order": 1,
+        "disp": true,
+        "width": "10",
+        "collapse": false
+    },
+    {
+        "id": "241e6786.1a591",
+        "type": "ui_group",
+        "z": "",
+        "name": "TEMPERATURAS",
+        "tab": "9e7a4c12.052c4",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "2aeb4a4d.ce0066",
+        "type": "ui_group",
+        "z": "",
+        "name": "HUMEDAD AMBIENTAL",
+        "tab": "9e7a4c12.052c4",
+        "order": 5,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "5cf572.107d529",
+        "type": "ui_group",
+        "z": "",
+        "name": "MEDIO AMBIENTE",
+        "tab": "9e7a4c12.052c4",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "a8e47590.47a68",
+        "type": "ui_group",
+        "z": "",
+        "name": "CALIDAD DEL AIRE",
+        "tab": "9e7a4c12.052c4",
+        "order": 6,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "4eda906e.557f6",
+        "type": "ui_group",
+        "z": "",
+        "name": "HUMEDADES GRÁFICAS",
+        "tab": "9e7a4c12.052c4",
+        "order": 2,
+        "disp": true,
+        "width": "10",
+        "collapse": false
+    },
+    {
+        "id": "9e7a4c12.052c4",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Home",
+        "icon": "dashboard",
+        "order": 1
+    }
+]
