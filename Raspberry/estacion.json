@@ -39,7 +39,8 @@
                 "ff7834e2.1d7028",
                 "65faea12.1cf0c4",
                 "f27202f6.1fe598",
-                "172100c8.89a86f"
+                "172100c8.89a86f",
+                "9e3853a2.dd32c8"
             ]
         ]
     },
@@ -48,7 +49,7 @@
         "type": "function",
         "z": "bfd286.1bcab578",
         "name": "AM2315",
-        "func": "var temperatura = {payload: msg.payload.TempAM2315, topic: \"AM2315\"};\nvar humedad = {payload: msg.payload.HumAM2315, topic: \"AM2315\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempAM2315.toString();\nmsgTemp += \"°C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumAM2315.toString();\nmsgHum += \"%\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
+        "func": "var temperatura = {payload: msg.payload.TempAM2315, topic: \"AM2315\"};\nvar humedad = {payload: msg.payload.HumAM2315, topic: \"AM2315\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempAM2315.toString();\nmsgTemp += \" °C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumAM2315.toString();\nmsgHum += \" %\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
         "outputs": 4,
         "noerr": 0,
         "x": 420,
@@ -83,7 +84,7 @@
         "outputs": 3,
         "noerr": 0,
         "x": 420,
-        "y": 400,
+        "y": 420,
         "wires": [
             [
                 "c4ec2431.e06f58"
@@ -107,7 +108,7 @@
         "z": "bfd286.1bcab578",
         "name": "",
         "x": 150,
-        "y": 720,
+        "y": 900,
         "wires": [
             [
                 "6be675ac.1f79a4"
@@ -124,7 +125,7 @@
         "createDir": false,
         "overwriteFile": "false",
         "x": 920,
-        "y": 720,
+        "y": 900,
         "wires": [
             []
         ]
@@ -139,7 +140,7 @@
         "createDir": false,
         "overwriteFile": "true",
         "x": 910,
-        "y": 780,
+        "y": 960,
         "wires": [
             []
         ]
@@ -149,7 +150,7 @@
         "type": "function",
         "z": "bfd286.1bcab578",
         "name": "DHT22",
-        "func": "var temperatura = {payload: msg.payload.TempDHT22, topic: \"DHT22\"};\nvar humedad = {payload: msg.payload.HumDHT22, topic: \"DHT22\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDHT22.toString();\nmsgTemp += \"°C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumDHT22.toString();\nmsgHum += \"%\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
+        "func": "var temperatura = {payload: msg.payload.TempDHT22, topic: \"DHT22\"};\nvar humedad = {payload: msg.payload.HumDHT22, topic: \"DHT22\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDHT22.toString();\nmsgTemp += \" °C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumDHT22.toString();\nmsgHum += \" %\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
         "outputs": 4,
         "noerr": 0,
         "x": 420,
@@ -180,7 +181,7 @@
         "type": "function",
         "z": "bfd286.1bcab578",
         "name": "DS18B20",
-        "func": "var temperatura = {payload: msg.payload.TempDS18B20, topic: \"DS18B20\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDS18B20.toString();\nmsgTemp += \"°C\";\n\nvar temp = {payload: msgTemp};\n\nreturn [temperatura, temp];",
+        "func": "var temperatura = {payload: msg.payload.TempDS18B20, topic: \"DS18B20\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDS18B20.toString();\nmsgTemp += \" °C\";\n\nvar temp = {payload: msgTemp};\n\nreturn [temperatura, temp];",
         "outputs": 2,
         "noerr": 0,
         "x": 420,
@@ -216,7 +217,7 @@
         "dot": false,
         "ymin": "-10",
         "ymax": "50",
-        "removeOlder": 1,
+        "removeOlder": "2",
         "removeOlderPoints": "",
         "removeOlderUnit": "86400",
         "cutout": 0,
@@ -333,7 +334,7 @@
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "x": 680,
-        "y": 400,
+        "y": 420,
         "wires": []
     },
     {
@@ -349,7 +350,7 @@
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "x": 630,
-        "y": 520,
+        "y": 540,
         "wires": []
     },
     {
@@ -357,11 +358,11 @@
         "type": "function",
         "z": "bfd286.1bcab578",
         "name": "Calidad del Aire",
-        "func": "var factor = -1/10000;\n\nmsgCO = msg.payload.CO.toString();\nmsgCO *= factor;\nmsgCO = msgCO.toFixed(2);\nmsgSO2 = msg.payload.SO2.toString();\nmsgSO2 *= factor;\nmsgSO2 = msgSO2.toFixed(2);\nmsgNO2 = msg.payload.NO2.toString();\nmsgNO2 *= factor;\nmsgNO2 = msgNO2.toFixed(2);\nvar CO = {payload: msgCO};\nvar SO2 = {payload: msgSO2};\nvar NO2 = {payload: msgNO2};\n\nreturn [CO, SO2, NO2];\n",
-        "outputs": 3,
+        "func": "msgPM = msg.payload.PM25.toString();\nmsgPM += \" ug/m3\";\nmsgCO = msg.payload.CO.toString();\n//msgCO = msgCO.toFixed(2);\nmsgSO2 = msg.payload.SO2.toString();\n//msgSO2 = msgSO2.toFixed(2);\nmsgNO2 = msg.payload.NO2.toString();\n//msgNO2 = msgNO2.toFixed(2);\nvar CO = {payload: msgCO};\nvar SO2 = {payload: msgSO2};\nvar NO2 = {payload: msgNO2};\nvar PM25 = {payload: msgPM};\n\nreturn [CO, SO2, NO2, PM25];\n",
+        "outputs": 4,
         "noerr": 0,
         "x": 420,
-        "y": 540,
+        "y": 580,
         "wires": [
             [
                 "8c08c538.658568"
@@ -371,12 +372,16 @@
             ],
             [
                 "13af869.2a152f9"
+            ],
+            [
+                "b8f5750.9308408"
             ]
         ],
         "outputLabels": [
             "CO",
             "SO2",
-            "NO2"
+            "NO2",
+            "PM2,5"
         ]
     },
     {
@@ -392,7 +397,7 @@
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "x": 630,
-        "y": 600,
+        "y": 620,
         "wires": []
     },
     {
@@ -408,7 +413,7 @@
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "x": 630,
-        "y": 560,
+        "y": 580,
         "wires": []
     },
     {
@@ -420,7 +425,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 440,
-        "y": 480,
+        "y": 500,
         "wires": [
             [
                 "a90578f3.70b7c"
@@ -441,7 +446,7 @@
         "fwdInMessages": true,
         "templateScope": "local",
         "x": 690,
-        "y": 480,
+        "y": 500,
         "wires": [
             []
         ]
@@ -459,7 +464,7 @@
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "x": 680,
-        "y": 360,
+        "y": 380,
         "wires": []
     },
     {
@@ -475,7 +480,7 @@
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "x": 680,
-        "y": 440,
+        "y": 460,
         "wires": []
     },
     {
@@ -488,10 +493,10 @@
         "hdrout": false,
         "multi": "one",
         "ret": "\\n",
-        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,Altitude,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM2,5",
         "skip": "0",
         "x": 730,
-        "y": 700,
+        "y": 880,
         "wires": [
             [
                 "38ac27bf.1297f8"
@@ -516,9 +521,9 @@
         "dot": false,
         "ymin": "0",
         "ymax": "100",
-        "removeOlder": 1,
+        "removeOlder": "2",
         "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
+        "removeOlderUnit": "86400",
         "cutout": 0,
         "useOneColor": false,
         "colors": [
@@ -545,11 +550,11 @@
         "type": "function",
         "z": "bfd286.1bcab578",
         "name": "Correción + DateTime",
-        "func": "var DateTime = msg.myyear + \"-\" + \n    msg.mymonthn + \"-\" +\n    msg.mydom + \" \" + \n    msg.mytimes;\nmsg.payload.DateTime = DateTime;\n\nvar factor = -1/10000;\nmsgCO = msg.payload.CO;\nmsgCO *= factor;\nmsg.payload.CO = parseFloat(msgCO.toFixed(2));\nmsgSO2 = msg.payload.SO2;\nmsgSO2 *= factor;\nmsg.payload.SO2 = parseFloat(msgSO2.toFixed(2));\nmsgNO2 = msg.payload.NO2;\nmsgNO2 *= factor;\nmsg.payload.NO2 = parseFloat(msgNO2.toFixed(2));\n\nmsg.payload.Pressure = 1.02;\n\nmsg.payload.Rain = 0.0;\n\nreturn msg;",
+        "func": "var rainIn = context.get(\"rain\")||0;\nvar count = context.get(\"count\")||0;\nvar rainHour = context.get(\"rainHour\")||0;\n\nif(count < 60) {\n    rainIn += msg.payload.Rain;\n    count++;\n    context.set(\"rain\", rainIn);\n    context.set(\"count\", count);\n} else {\n    rainIn += msg.payload.Rain;\n    context.set(\"rain\", 0);\n    context.set(\"count\", 0);\n    rainHour = rainIn;\n}\n\nif (rainHour === 0) {\n    msg.payload.Rain = 0\n} else {\n    msg.payload.Rain = rainHour;\n}\n\nvar DateTime = msg.myyear + \"-\" + \n    msg.mymonthn + \"-\" +\n    msg.mydom + \" \" + \n    msg.mytimes;\nmsg.payload.DateTime = DateTime;\n\nmsgCO = msg.payload.CO;\nmsg.payload.CO = parseFloat(msgCO.toFixed(2));\nmsgSO2 = msg.payload.SO2;\nmsg.payload.SO2 = parseFloat(msgSO2.toFixed(2));\nmsgNO2 = msg.payload.NO2;\nmsg.payload.NO2 = parseFloat(msgNO2.toFixed(2));\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 340,
-        "y": 720,
+        "y": 900,
         "wires": [
             [
                 "e13d9b5e.2a49f",
@@ -570,7 +575,7 @@
         "write": true,
         "throwerror": true,
         "x": 530,
-        "y": 720,
+        "y": 900,
         "wires": [
             [
                 "2e1925a1.158842",
@@ -595,10 +600,10 @@
         "hdrout": true,
         "multi": "one",
         "ret": "\\n",
-        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,Altitude,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM2,5",
         "skip": "0",
         "x": 730,
-        "y": 740,
+        "y": 920,
         "wires": [
             [
                 "38ac27bf.1297f8"
@@ -615,10 +620,10 @@
         "hdrout": false,
         "multi": "one",
         "ret": "\\n",
-        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,Altitude,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM2,5",
         "skip": "0",
         "x": 720,
-        "y": 780,
+        "y": 960,
         "wires": [
             [
                 "d9d7ac59.3dcc8"
@@ -647,7 +652,7 @@
             "f27202f6.1fe598"
         ],
         "x": 35,
-        "y": 720,
+        "y": 900,
         "wires": [
             [
                 "9f6bb12c.cff038"
@@ -664,7 +669,7 @@
         "createDir": false,
         "overwriteFile": "true",
         "x": 520,
-        "y": 760,
+        "y": 940,
         "wires": [
             []
         ]
@@ -677,7 +682,7 @@
         "statusCode": "",
         "headers": {},
         "x": 570,
-        "y": 880,
+        "y": 1060,
         "wires": []
     },
     {
@@ -690,7 +695,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 90,
-        "y": 880,
+        "y": 1060,
         "wires": [
             [
                 "37bf0fe0.05f2c"
@@ -707,7 +712,7 @@
         "chunk": false,
         "sendError": false,
         "x": 270,
-        "y": 880,
+        "y": 1060,
         "wires": [
             [
                 "5a1b5efe.8b20f8"
@@ -723,7 +728,7 @@
         "action": "",
         "pretty": false,
         "x": 430,
-        "y": 880,
+        "y": 1060,
         "wires": [
             [
                 "8dce8705.5d18a"
@@ -787,7 +792,7 @@
         "name": "Link",
         "info": "Salida del link, dentro de éste se puede declarar a\ncual link de entrada corresponde",
         "x": 50,
-        "y": 680,
+        "y": 860,
         "wires": []
     },
     {
@@ -797,7 +802,7 @@
         "name": "DateTime",
         "info": "\"simpletime\" es una módulo descargable de Node-RED\nque permite, de forma simple obtener diversos tipos\nde mensajes con la fecha y hora.\n\nLa función \"DateTime\" parsea lo recibido desde el \nnodo \"simpletime\" para construir un mensaje con el\nformato \"YYYY-MM-DD hh:mm:ss\"",
         "x": 260,
-        "y": 680,
+        "y": 860,
         "wires": []
     },
     {
@@ -807,7 +812,7 @@
         "name": "CheckFile",
         "info": "El nodo \"Check File\" revisa si el archivo \"log.csv\"\nexiste, y dependiendo de su resultado genera el \narchivo o sigue agregando datos al archivo existente.",
         "x": 500,
-        "y": 680,
+        "y": 860,
         "wires": []
     },
     {
@@ -817,7 +822,7 @@
         "name": "CSV",
         "info": "Diversos constructores para generar el archivo CSV.",
         "x": 690,
-        "y": 660,
+        "y": 840,
         "wires": []
     },
     {
@@ -827,7 +832,7 @@
         "name": "Save File",
         "info": "Nodos que guardan los archivos dentro de la carpeta\nseleccionada.",
         "x": 920,
-        "y": 660,
+        "y": 840,
         "wires": []
     },
     {
@@ -837,7 +842,7 @@
         "name": "JSON to GET",
         "info": "archivo json para metodo GET de API",
         "x": 510,
-        "y": 800,
+        "y": 980,
         "wires": []
     },
     {
@@ -847,7 +852,7 @@
         "name": "GET",
         "info": "Generador web para datos para metodo GET",
         "x": 90,
-        "y": 920,
+        "y": 1100,
         "wires": []
     },
     {
@@ -857,7 +862,7 @@
         "name": "Read File",
         "info": "Nodo que permite leer archivo seleccionado.",
         "x": 280,
-        "y": 920,
+        "y": 1100,
         "wires": []
     },
     {
@@ -867,7 +872,7 @@
         "name": "Parser",
         "info": "Nodo que permite parsear los datos a json.",
         "x": 430,
-        "y": 920,
+        "y": 1100,
         "wires": []
     },
     {
@@ -877,7 +882,7 @@
         "name": "Response",
         "info": "Respuesta para petición GET",
         "x": 580,
-        "y": 920,
+        "y": 1100,
         "wires": []
     },
     {
@@ -892,6 +897,57 @@
         "complete": "false",
         "x": 190,
         "y": 220,
+        "wires": []
+    },
+    {
+        "id": "b8f5750.9308408",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "a8e47590.47a68",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "PM2,5",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 630,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "9e3853a2.dd32c8",
+        "type": "function",
+        "z": "bfd286.1bcab578",
+        "name": "BMP280",
+        "func": "var temperatura = {payload: msg.payload.TempBMP280, topic: \"BMP280\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempBMP280.toString();\nmsgTemp += \" °C\";\n\nvar temp = {payload: msgTemp};\n\nreturn [temperatura, temp];",
+        "outputs": 2,
+        "noerr": 0,
+        "x": 420,
+        "y": 340,
+        "wires": [
+            [
+                "f0bd0046.9159e8"
+            ],
+            [
+                "90ef2d3f.cb655"
+            ]
+        ]
+    },
+    {
+        "id": "90ef2d3f.cb655",
+        "type": "ui_text",
+        "z": "bfd286.1bcab578",
+        "group": "241e6786.1a591",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "BMP280",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 640,
+        "y": 340,
         "wires": []
     },
     {
