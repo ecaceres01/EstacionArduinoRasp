@@ -1,7 +1,7 @@
 //librerias
-#include <Wire.h> //I2C para AM2315 (A4 SDA, A5 SCL) 
+#include <Wire.h> //I2C para AM2315 y BMP280 (SDA verde y SCL azul)
 #include <Adafruit_AM2315.h> //sensor de temperatura y humedad ambiental
-#include "SparkFunMPL3115A2.h" //sensor de presión del shell
+#include <Adafruit_BMP280.h> //sensor de presión, temperatura y altura BMP280
 #include "DHT.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -14,54 +14,67 @@
 #define DHTTYPE DHT22 //sensor DHT22
 #define DHTPIN 9
 #define ONE_WIRE_BUS 12 //sensor DS18B20
+#define USE_AVG
 
 DHT dht(DHTPIN, DHTTYPE);
 
-OneWire oneWire(ONE_WIRE_BUS); //sensor DS18B20
-DallasTemperature sensors(&oneWire); //sensor DS18B20
+//instancias para sensor DS18B20
+OneWire oneWire(ONE_WIRE_BUS); 
+DallasTemperature sensors(&oneWire); 
 
+//pines para tarjeta dhemax
 const byte rxPin = 10;
 const byte txPin = 11;
 SoftwareSerial mySerial = SoftwareSerial(rxPin, txPin);
 
+//pines para sensor sharp GP2Y1014AU0F
+const int sharpLEDPin = 7; // LED
+const int sharpVoPin = A1; // Vo
+
 //Variables
-Adafruit_AM2315 am2315;
-MPL3115A2 myPressure; //instancia de sensor de presión
+Adafruit_AM2315 am2315; //I2C
+Adafruit_BMP280 bmp; //I2C
 volatile long lastWindISR = 0;
 volatile byte windClicks = 0;
 volatile float rainin = 0;
-volatile float rainHour[60];
+volatile float rainHour;
 volatile unsigned long raintime, raininterval, rainlast;
 long lastWindCheck = 0;
 int valueS1;
 int valueS2;
 int valueS3;
 
+static float Voc = 0.6;
+const float K = 0.5;
+
+
 //activación del anemómetro cuando se activa el magneto
-void wspeedISR(){
-  if (millis() - lastWindISR > 10){ 
+void wspeedISR() {
+  if (millis() - lastWindISR > 10) {
     lastWindISR = millis();
     windClicks++;
   }
 }
 
-void rainISR(){
-  raintime = millis();
-  raininterval = raintime - rainlast;
+void rainISR() {
+  raintime = millis(); // grab current time
+  raininterval = raintime - rainlast; // calculate interval between this and last event
 
-  if (raininterval > 10)
+  if (raininterval > 10) // ignore switch-bounce glitches less than 10mS after initial edge
   {
-    rainin += 0.2794; //Each dump is 0.011" of water
+    //dailyrainin += 0.011; //Each dump is 0.011" of water
+    rainHour += 0.2794; //Increase this minute's amount of rain
+
     rainlast = raintime; // set up for next event
   }
 }
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial){
+  while (!Serial) {
     delay(10);
   }
-  
+
   pinMode(WSPEED, INPUT_PULLUP); //input anemómetro
 
   //tarjeta gases
@@ -73,38 +86,42 @@ void setup() {
   dht.begin();
   sensors.begin();
   am2315.begin();
-  
-  //sensor de presión
-  myPressure.begin();
-  myPressure.setModeBarometer();
-  myPressure.setOversampleRate(7);
-  //myPressure.enableEventFlags();
+  bmp.begin();
+
+  //PM2.5
+  pinMode(sharpLEDPin, OUTPUT);
+
+  /* Default settings from datasheet. */
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+                  Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
+                  Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
+                  Adafruit_BMP280::FILTER_X16,      /* Filtering. */
+                  Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
   //interrupciones
   attachInterrupt(1, wspeedISR, FALLING);
   attachInterrupt(0, rainISR, FALLING);
   interrupts();
 
-  delay(5000);
+  delay(1000);
 }
 
-float getRain(){
-  float deltaTime = (millis() - rainlast)/1000.0;
-  float rain = (float)rainin/deltaTime;
-  rainin = 0;
-  return(rain);
+float getRain() {
+  rainin = rainHour;
+  rainHour = 0;
+  return(rainin);
 }
 
-float getWindSpeed(){
-  float deltaTime = (millis() - lastWindCheck)/1000.0;
-  float windSpeed = (float)windClicks/deltaTime;
+float getWindSpeed() {
+  float deltaTime = (millis() - lastWindCheck) / 1000.0;
+  float windSpeed = (float)windClicks / deltaTime;
   windSpeed *= 2.4;
   windClicks = 0;
   lastWindCheck = millis();
-  return(windSpeed);
+  return (windSpeed);
 }
 
-int getWindDirection(){
+int getWindDirection() {
   unsigned int adc;
   adc = analogRead(WDIR);
   if (adc < 380) return (113);
@@ -129,19 +146,35 @@ void loop() {
   sensors.requestTemperatures();
   int wDir = getWindDirection();
   float wSpeed = getWindSpeed();
-  float myRain = getRain(); 
-  float pressure = myPressure.readPressure();
+  float rain = getRain();
+  float pressure = bmp.readPressure();
+  float altitude = bmp.readAltitude();
+  float tempBMP280 = bmp.readTemperature();
   float tempAM2315 = am2315.readTemperature();
   float humAM2315 = am2315.readHumidity();
   float humDHT22 = dht.readHumidity();
   float tempDHT22 = dht.readTemperature();
   float tempDS18B20 = sensors.getTempCByIndex(0);
 
-  if (mySerial.available() > 0){
+  digitalWrite(sharpLEDPin, LOW);
+  delayMicroseconds(280);
+  float Vo = analogRead(sharpVoPin);
+  delayMicroseconds(40);
+  digitalWrite(sharpLEDPin, HIGH);
+  
+  Vo = Vo / 1024.0 * 5.0;
+  float dV = Vo - Voc;
+  if ( dV < 0 ) {
+    dV = 0;
+    Voc = Vo;
+  }
+  float dustDensity = (dV / K * 100.0);
+
+  if (mySerial.available() > 0) {
     String valor = mySerial.readString();
-    valueS1 = valor.substring(3,9).toInt();
-    valueS2 = valor.substring(13,19).toInt();
-    valueS3 = valor.substring(23,29).toInt();
+    valueS1 = valor.substring(3, 9).toInt();
+    valueS2 = valor.substring(13, 19).toInt();
+    valueS3 = valor.substring(23, 29).toInt();
   }
 
   Serial.print("{");
@@ -152,9 +185,13 @@ void loop() {
   Serial.print(",\"WindSpeed\":");
   Serial.print(wSpeed);
   Serial.print(",\"Rain\":");
-  Serial.print(myRain);
+  Serial.print(rain);
   Serial.print(",\"Pressure\":");
-  Serial.print(pressure/100000);
+  Serial.print(pressure / 100);
+  Serial.print(",\"Altitude\":");
+  Serial.print(altitude);
+  Serial.print(",\"TempBMP280\":");
+  Serial.print(tempBMP280);
   Serial.print(",\"HumAM2315\":");
   Serial.print(humAM2315);
   Serial.print(",\"TempAM2315\":");
@@ -171,6 +208,8 @@ void loop() {
   Serial.print(valueS2);
   Serial.print(",\"NO2\":");
   Serial.print(valueS3);
+  Serial.print(",\"PM25\":");
+  Serial.print(dustDensity);
   Serial.println("}");
 
   delay(60000);
