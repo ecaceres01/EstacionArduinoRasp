@@ -1,11 +1,11 @@
 //librerias
-#include <Wire.h> //I2C para AM2315 y BMP280 (SDA verde y SCL azul)
-#include <Adafruit_AM2315.h> //sensor de temperatura y humedad ambiental
+#include <Wire.h> //protocolo de comunicacion I2C usado por AM2315 y BMP280 (SDA y SCL)
+#include <Adafruit_AM2315.h> //sensor de temperatura y humedad ambiental AM2315
 #include <Adafruit_BMP280.h> //sensor de presión, temperatura y altura BMP280
-#include "DHT.h"
-#include <OneWire.h>
-#include <DallasTemperature.h>
-#include <SoftwareSerial.h>
+#include "DHT.h" //sensor de temperatura y humedad ambiental DHT22
+#include <OneWire.h> //protocolo de comunicación OneWire usado por DS18B20
+#include <DallasTemperature.h> //sensor de temperatura DS18B20
+#include <SoftwareSerial.h> //protocolo de comunicación usado por módulo MBD+AQD
 
 //Pins
 #define WSPEED 3
@@ -14,7 +14,6 @@
 #define DHTTYPE DHT22 //sensor DHT22
 #define DHTPIN 9
 #define ONE_WIRE_BUS 12 //sensor DS18B20
-#define USE_AVG
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -28,8 +27,8 @@ const byte txPin = 11;
 SoftwareSerial mySerial = SoftwareSerial(rxPin, txPin);
 
 //pines para sensor sharp GP2Y1014AU0F
-const int sharpLEDPin = 7; // LED
-const int sharpVoPin = A1; // Vo
+const int sharpLEDPin = 7;   // Arduino digital pin 7 connect to sensor LED.
+const int sharpVoPin = A1;   // Arduino analog pin 5 connect to sensor Vo.
 
 //Variables
 Adafruit_AM2315 am2315; //I2C
@@ -43,10 +42,8 @@ long lastWindCheck = 0;
 int valueS1;
 int valueS2;
 int valueS3;
-
-static float Voc = 0.6;
-const float K = 0.5;
-
+static float Voc = 0.6; //output típico del voltaje del polvo en 0 volts
+const float K = 0.5;  //sensivilidad típica del polvo en únidades de V por 100mg/m3
 
 //activación del anemómetro cuando se activa el magneto
 void wspeedISR() {
@@ -62,9 +59,7 @@ void rainISR() {
 
   if (raininterval > 10) // ignore switch-bounce glitches less than 10mS after initial edge
   {
-    //dailyrainin += 0.011; //Each dump is 0.011" of water
-    rainHour += 0.2794; //Increase this minute's amount of rain
-
+    rainHour += 0.2794; //Increase this minute's amount of rain on mm
     rainlast = raintime; // set up for next event
   }
 }
@@ -74,7 +69,7 @@ void setup() {
   while (!Serial) {
     delay(10);
   }
-
+  Serial.println("Inicializado");
   pinMode(WSPEED, INPUT_PULLUP); //input anemómetro
 
   //tarjeta gases
@@ -88,10 +83,10 @@ void setup() {
   am2315.begin();
   bmp.begin();
 
-  //PM2.5
+  //densidad de polvo
   pinMode(sharpLEDPin, OUTPUT);
 
-  /* Default settings from datasheet. */
+  //seteo default de BMP280 según datasheet
   bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
                   Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
                   Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
@@ -148,7 +143,6 @@ void loop() {
   float wSpeed = getWindSpeed();
   float rain = getRain();
   float pressure = bmp.readPressure();
-  float altitude = bmp.readAltitude();
   float tempBMP280 = bmp.readTemperature();
   float tempAM2315 = am2315.readTemperature();
   float humAM2315 = am2315.readHumidity();
@@ -159,17 +153,16 @@ void loop() {
   digitalWrite(sharpLEDPin, LOW);
   delayMicroseconds(280);
   float Vo = analogRead(sharpVoPin);
-  delayMicroseconds(40);
   digitalWrite(sharpLEDPin, HIGH);
-  
+
   Vo = Vo / 1024.0 * 5.0;
   float dV = Vo - Voc;
   if ( dV < 0 ) {
     dV = 0;
     Voc = Vo;
   }
-  float dustDensity = (dV / K * 100.0);
-
+  float dustDensity = dV / K * 100.0;
+  
   if (mySerial.available() > 0) {
     String valor = mySerial.readString();
     valueS1 = valor.substring(3, 9).toInt();
@@ -188,8 +181,6 @@ void loop() {
   Serial.print(rain);
   Serial.print(",\"Pressure\":");
   Serial.print(pressure / 100);
-  Serial.print(",\"Altitude\":");
-  Serial.print(altitude);
   Serial.print(",\"TempBMP280\":");
   Serial.print(tempBMP280);
   Serial.print(",\"HumAM2315\":");
