@@ -32,13 +32,14 @@ bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/
 
 ![Imagen de bash](Documentacion/imagenes/raspiInstallBash.png)  
 
-6.- Al finalizar la instalación, ingresando desde un navegador web en su red local la IP de su dispositivo Raspberry más el puerto 1880 se ingresa al programa Node-RED, como se muestra en la imagen siguiente.  
+6.- Al finalizar la instalación, ingresando desde un navegador web en su red local la IP de su dispositivo Raspberry más el puerto 1880 se ingresa al programa Node-RED, como se ejemplifica en la imagen siguiente.  
 
 ![Imagen de Node](Documentacion/imagenes/NodeDireccion.png)
-Ejecuta el siguiente comando en tu carpeta de Node-RED, normalmente `~/.node-red`
-```
-npm install node-red-node-xmpp
-```
+
+7.- Dentro de Node-RED, en la esquina superior derecha, acceder al Menu > Menage palette, y seleccionar la viñeta Install.  
+![](Documentacion/imagenes/NodePalette.png)  
+![](Documentacion/imagenes/nodePallete2.png)  
+
 ## Importar flujo en Node-RED
 Para importar un flujo a Node-RED se debe ir a `Menu > Import > Clipboard`
 y copiar el flujo
