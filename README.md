@@ -1,11 +1,12 @@
-# Estacion
-_Estación de monitoreo medioambiental y de calidad del aire de bajo costo_
+# Estación de monitoreo medioambiental y de calidad del aire de bajo costo para el sector de quintero y puchuncavi
+_Estación de monitoreo medioambiental y de calidad del aire de bajo costo, utilizada como tesis de pregrado para optar al título de Ingeniero en Computación e Informática_
 
 ## Pre-requisitos
-_Instrumentos y aplicaciones mínimas para la implementación._
-
-* Node-RED
-> **Nota** Para el correcto funcionamiento de node-RED
+_Instrumentos y aplicaciones mínimas para la implementación:_
+* Arduino UNO.
+* Raspberry Pi con su SO raspbian.
+* A lo menos un sensor de los utilizados en este proyecto.
+* Node-RED instalado en la Raspberry.
 
 ## Instalación
 Script de instalación de node-RED para SO Debian (Raspbian):
