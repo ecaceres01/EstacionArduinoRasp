@@ -8,14 +8,14 @@
 #include <SoftwareSerial.h> //protocolo de comunicación usado por módulo MBD+AQD
 
 //Pins
-#define WSPEED 3
-#define RAIN 2
-#define WDIR A0
-#define DHTTYPE DHT22 //sensor DHT22
-#define DHTPIN 9
-#define ONE_WIRE_BUS 12 //sensor DS18B20
+#define WSPEED 3 //pin por defecto del shell sparkfun para el sensor de velocidad de viento
+#define RAIN 2 //pin por defecto del shell sparkfun para el sensor de prcipitación 
+#define WDIR A0 //pin por defecto del shell de sparkfun para el sensor de dirección del viento
+#define DHTTYPE DHT22 //definición del típo de sensor DHT
+#define DHTPIN 9 //pin del sensor DHT22
+#define ONE_WIRE_BUS 12 //pin del sensor DS18B20
 
-DHT dht(DHTPIN, DHTTYPE);
+DHT dht(DHTPIN, DHTTYPE); //instancia del sensor DHT22
 
 //instancias para sensor DS18B20
 OneWire oneWire(ONE_WIRE_BUS); 
@@ -54,13 +54,12 @@ void wspeedISR() {
 }
 
 void rainISR() {
-  raintime = millis(); // grab current time
-  raininterval = raintime - rainlast; // calculate interval between this and last event
-
-  if (raininterval > 10) // ignore switch-bounce glitches less than 10mS after initial edge
+  raintime = millis(); // toma el tiempo actual en milisegundos
+  raininterval = raintime - rainlast; // calcula el intervalo entre el evento actual y el anterior
+  if (raininterval > 10) // ignora la vibración del receptaculo y toma muestras después de 10 milisegundos
   {
-    rainHour += 0.2794; //Increase this minute's amount of rain on mm
-    rainlast = raintime; // set up for next event
+    rainHour += 0.2794; //incrementa la cantidad de lluvia caida por la cantidad estipulada
+    rainlast = raintime; // se setea para el próximo evento
   }
 }
 
@@ -171,9 +170,7 @@ void loop() {
   }
 
   Serial.print("{");
-  Serial.print("\"DateTime\":");
-  Serial.print(0);
-  Serial.print(",\"WindDirection\":");
+  Serial.print("\"WindDirection\":");
   Serial.print(wDir);
   Serial.print(",\"WindSpeed\":");
   Serial.print(wSpeed);
@@ -199,7 +196,7 @@ void loop() {
   Serial.print(valueS2);
   Serial.print(",\"NO2\":");
   Serial.print(valueS3);
-  Serial.print(",\"PM25\":");
+  Serial.print(",\"PM\":");
   Serial.print(dustDensity);
   Serial.println("}");
 
