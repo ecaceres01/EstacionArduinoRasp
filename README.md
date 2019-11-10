@@ -49,3 +49,4 @@ Buscar e instalar:
 ## Importar flujo en Node-RED
 Para importar un flujo a Node-RED se debe ir a `Menu > Import > Clipboard > select a file to import`, y seleccionar el archivo `estacion.json` descargado en el release.
 
+### Se continua el proceso con la segunda parte del proyecto. La instalación del cliente XMPP [acá](https://github.com/ecaceres01/Estacion/releases)
