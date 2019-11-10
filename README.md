@@ -1,5 +1,5 @@
 # Estación de monitoreo medioambiental y de calidad del aire de bajo costo para el sector de quintero y puchuncavi
-_Estación de monitoreo medioambiental y de calidad del aire de bajo costo, utilizada como tesis de pregrado para optar al título de Ingeniero en Computación e Informática, de la universidad Andrés Bello_
+_Estación de monitoreo medioambiental y de calidad del aire de bajo costo, utilizada como tesis de pregrado para optar al título de Ingeniero en Computación e Informática de la Universidad Andrés Bello_
 
 ## Pre-requisitos
 _Instrumentos y aplicaciones mínimas para la implementación:_
