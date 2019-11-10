@@ -2,1066 +2,30 @@
     {
         "id": "8b40e450.7eb768",
         "type": "tab",
-        "label": "Estación de Monitoreo",
+        "label": "Datos & Normalización",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "2576f32d.d5704c",
-        "type": "serial in",
-        "z": "8b40e450.7eb768",
-        "name": "Arduino",
-        "serial": "6c7a9c64.470f24",
-        "x": 70,
-        "y": 120,
-        "wires": [
-            [
-                "3436820a.28f09e",
-                "92e7557b.2260c8"
-            ]
-        ]
+        "id": "9f389a5.1718568",
+        "type": "tab",
+        "label": "Dashboard",
+        "disabled": false,
+        "info": ""
     },
     {
-        "id": "3436820a.28f09e",
-        "type": "json",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "property": "payload",
-        "action": "",
-        "pretty": false,
-        "x": 210,
-        "y": 120,
-        "wires": [
-            [
-                "c1dd75e9.6b6798"
-            ]
-        ]
+        "id": "d8a10f38.4b416",
+        "type": "tab",
+        "label": "CSV",
+        "disabled": false,
+        "info": ""
     },
     {
-        "id": "c1dd75e9.6b6798",
-        "type": "simpletime",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "x": 370,
-        "y": 120,
-        "wires": [
-            [
-                "a2c118.1b5526e8"
-            ]
-        ]
-    },
-    {
-        "id": "8964cc22.511ef8",
-        "type": "file",
-        "z": "8b40e450.7eb768",
-        "name": "Log.csv",
-        "filename": "/home/pi/Estacion/log.csv",
-        "appendNewline": false,
-        "createDir": false,
-        "overwriteFile": "false",
-        "x": 680,
-        "y": 1100,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "cbeba8f2.51d93",
-        "type": "file",
-        "z": "8b40e450.7eb768",
-        "name": "Ultimo dato",
-        "filename": "/home/pi/Estacion/last.csv",
-        "appendNewline": false,
-        "createDir": false,
-        "overwriteFile": "true",
-        "x": 690,
-        "y": 1160,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "7b0eea84.16bb3c",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "Wind Direction Image",
-        "func": "var winddir = msg.payload.WindDirection;\n\nif (winddir === 0){\n    msg.payload = \"/windn.png\";\n} else if (winddir > 0 && winddir < 90){\n    msg.payload = \"/windne.png\";\n} else if (winddir == 90){\n    msg.payload = \"/winde.png\";\n} else if (winddir > 90 && winddir < 180){\n    msg.payload = \"/windse.png\";\n} else if (winddir == 180){\n    msg.payload = \"/winds.png\";\n} else if (winddir > 180 && winddir < 270){\n    msg.payload = \"/windsw.png\";\n} else if (winddir == 270){\n    msg.payload = \"/windw.png\";\n} else if (winddir > 270 && winddir < 360){\n    msg.payload = \"/windnw.png\";\n}\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 240,
-        "y": 720,
-        "wires": [
-            [
-                "1e345db3.ec1682"
-            ]
-        ]
-    },
-    {
-        "id": "129ce974.69cf47",
-        "type": "csv",
-        "z": "8b40e450.7eb768",
-        "name": "CSV sin nombres",
-        "sep": ";",
-        "hdrin": "",
-        "hdrout": false,
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM25",
-        "skip": "0",
-        "strings": true,
-        "x": 490,
-        "y": 1080,
-        "wires": [
-            [
-                "8964cc22.511ef8"
-            ]
-        ]
-    },
-    {
-        "id": "a2c118.1b5526e8",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "Correción + DateTime",
-        "func": "var rainIn = context.get(\"rain\")||0;\nvar count = context.get(\"count\")||0;\nvar rainHour = context.get(\"rainHour\")||0;\n\nif(count < 60) {\n    rainIn += msg.payload.Rain;\n    count++;\n    context.set(\"rain\", rainIn);\n    context.set(\"count\", count);\n} else {\n    rainIn += msg.payload.Rain;\n    context.set(\"rain\", 0);\n    context.set(\"count\", 0);\n    rainHour = rainIn;\n}\n\nif (rainHour === 0) {\n    msg.payload.Rain = 0\n} else {\n    msg.payload.Rain = rainHour;\n}\n\nvar DateTime = msg.myyear + \"-\" + \n    msg.mymonthn + \"-\" +\n    msg.mydom + \" \" + \n    msg.mytimes;\nmsg.payload.DateTime = DateTime;\n\nmsgCO = 0.0025 * (msg.payload.CO) + 5.626;\nif (msgCO < 0.0) {\n    msgCO = 0.0;\n}\nmsg.payload.CO = parseFloat(msgCO.toFixed(2));\nmsgPM = 0.233 * (msg.payload.PM25) + 5.01;\nmsg.payload.PM25 = parseFloat(msgPM.toFixed(2));\nmsgSO2 = msg.payload.SO2;\nmsg.payload.SO2 = parseFloat(msgSO2.toFixed(2));\nmsgNO2 = msg.payload.NO2;\nmsg.payload.NO2 = parseFloat(msgNO2.toFixed(2));\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 580,
-        "y": 120,
-        "wires": [
-            [
-                "b5fecf3e.49b7c8"
-            ]
-        ]
-    },
-    {
-        "id": "ffaa3350.634a",
-        "type": "fs-ops-access",
-        "z": "8b40e450.7eb768",
-        "name": "Check File",
-        "path": "/home/pi/Estacion/",
-        "pathType": "str",
-        "filename": "log.csv",
-        "filenameType": "str",
-        "read": true,
-        "write": true,
-        "throwerror": true,
-        "x": 270,
-        "y": 1100,
-        "wires": [
-            [
-                "129ce974.69cf47",
-                "a697980a.6e98e8"
-            ],
-            [
-                "7014c3f3.7f041c"
-            ]
-        ],
-        "outputLabels": [
-            "todo",
-            "error"
-        ]
-    },
-    {
-        "id": "7014c3f3.7f041c",
-        "type": "csv",
-        "z": "8b40e450.7eb768",
-        "name": "CSV con nombres",
-        "sep": ";",
-        "hdrin": "",
-        "hdrout": true,
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM25",
-        "skip": "0",
-        "strings": true,
-        "x": 490,
-        "y": 1120,
-        "wires": [
-            [
-                "8964cc22.511ef8"
-            ]
-        ]
-    },
-    {
-        "id": "a697980a.6e98e8",
-        "type": "csv",
-        "z": "8b40e450.7eb768",
-        "name": "CSV último dato",
-        "sep": ";",
-        "hdrin": "",
-        "hdrout": false,
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM25",
-        "skip": "0",
-        "strings": true,
-        "x": 480,
-        "y": 1160,
-        "wires": [
-            [
-                "cbeba8f2.51d93"
-            ]
-        ]
-    },
-    {
-        "id": "8c0697f2.a3b61",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "Captura",
-        "info": "Lectura de datos desde Arduino mediante puerto Serial,\nenviado en formato json y los envía como {payload}",
-        "x": 70,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "cb18bc47.e59cc8",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "Funciones",
-        "info": "Funciones escritas en JS que captura el dato\nrequerido, y les modifica el formato para poder\nser mostrados por la UI de Node-RED.",
-        "x": 200,
-        "y": 180,
-        "wires": []
-    },
-    {
-        "id": "59d2d35d.61db64",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "Dashboard",
-        "info": "Sección donde se generan los dashboard que se\nmuestran en la UI de Node-RED.\n\nel módulo de dashboard se necesita descargar",
-        "x": 600,
-        "y": 180,
-        "wires": []
-    },
-    {
-        "id": "b73d2ab6.1c75f8",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "Link",
-        "info": "Función nativa de Node-RED que permite realizar una\nsimple comunicación hacia otro nodo sin necesidad de\nunirlos por la \"línea\".\n\nEsta corresponde a la salida, la cual debe ser \npareada con una entrada.",
-        "x": 750,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "12140c18.9b672c",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "Parseo",
-        "info": "Función que permite parsear el mensaje json enviado\na diversos {payloads}",
-        "x": 210,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "c5eece02.ca4e78",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "Link",
-        "info": "Salida del link, dentro de éste se puede declarar a\ncual link de entrada corresponde",
-        "x": 70,
-        "y": 1060,
-        "wires": []
-    },
-    {
-        "id": "ae3ce737.847d",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "DateTime",
-        "info": "\"simpletime\" es una módulo descargable de Node-RED\nque permite, de forma simple obtener diversos tipos\nde mensajes con la fecha y hora.\n\nLa función \"DateTime\" parsea lo recibido desde el \nnodo \"simpletime\" para construir un mensaje con el\nformato \"YYYY-MM-DD hh:mm:ss\"",
-        "x": 460,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "ed200987.2831e",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "CheckFile",
-        "info": "El nodo \"Check File\" revisa si el archivo \"log.csv\"\nexiste, y dependiendo de su resultado genera el \narchivo o sigue agregando datos al archivo existente.",
-        "x": 280,
-        "y": 1060,
-        "wires": []
-    },
-    {
-        "id": "fcfa6cc1.d4bca",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "CSV",
-        "info": "Diversos constructores para generar el archivo CSV.",
-        "x": 490,
-        "y": 1040,
-        "wires": []
-    },
-    {
-        "id": "d3e9711a.c931d8",
-        "type": "comment",
-        "z": "8b40e450.7eb768",
-        "name": "Save File",
-        "info": "Nodos que guardan los archivos dentro de la carpeta\nseleccionada.",
-        "x": 680,
-        "y": 1060,
-        "wires": []
-    },
-    {
-        "id": "9f08e689.eec19",
-        "type": "debug",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 270,
-        "y": 1220,
-        "wires": []
-    },
-    {
-        "id": "36e664d6.89537c",
-        "type": "xmpp out",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "server": "abe038bd.bd61c",
-        "to": "nodo-aws@binarylamp.cl",
-        "join": false,
-        "sendObject": false,
-        "x": 250,
-        "y": 1160,
-        "wires": []
-    },
-    {
-        "id": "b5fecf3e.49b7c8",
-        "type": "link out",
-        "z": "8b40e450.7eb768",
-        "name": "Salida de datos",
-        "links": [
-            "3fd5e53b.3cdd0a",
-            "3b5bfb73.7d6a6c"
-        ],
-        "x": 755,
-        "y": 120,
-        "wires": []
-    },
-    {
-        "id": "3fd5e53b.3cdd0a",
-        "type": "link in",
-        "z": "8b40e450.7eb768",
-        "name": "xmpp & csv",
-        "links": [
-            "b5fecf3e.49b7c8"
-        ],
-        "x": 55,
-        "y": 1100,
-        "wires": [
-            [
-                "ffaa3350.634a",
-                "36e664d6.89537c",
-                "9f08e689.eec19"
-            ]
-        ]
-    },
-    {
-        "id": "3b5bfb73.7d6a6c",
-        "type": "link in",
-        "z": "8b40e450.7eb768",
-        "name": "funciones & dashboard",
-        "links": [
-            "b5fecf3e.49b7c8"
-        ],
-        "x": 35,
-        "y": 600,
-        "wires": [
-            [
-                "a4658b30.e733b",
-                "7b706a2d.46f824",
-                "11adf4f5.854223",
-                "4e182703.e15f7",
-                "649c8005.3531d",
-                "7b0eea84.16bb3c",
-                "5b5a57ce.c5c4e8",
-                "759284f1.24cccc"
-            ]
-        ]
-    },
-    {
-        "id": "a4658b30.e733b",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "AM2315",
-        "func": "var temperatura = {payload: msg.payload.TempAM2315, topic: \"AM2315\"};\nvar humedad = {payload: msg.payload.HumAM2315, topic: \"AM2315\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempAM2315.toString();\nmsgTemp += \" °C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumAM2315.toString();\nmsgHum += \" %\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
-        "outputs": 4,
-        "noerr": 0,
-        "x": 200,
-        "y": 340,
-        "wires": [
-            [
-                "18cf855.8c1817b",
-                "7818aa12.dcec64"
-            ],
-            [
-                "3e419a71.94b32e",
-                "4ccbf694.b6592"
-            ],
-            [
-                "c9475833.8a19c8"
-            ],
-            [
-                "c526523f.18e128"
-            ]
-        ],
-        "outputLabels": [
-            "Temperatura",
-            "Humedad",
-            "Texto Temp",
-            "Texto Hum"
-        ]
-    },
-    {
-        "id": "3e419a71.94b32e",
-        "type": "ui_chart",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "group": "48b8d719.dd9e68",
-        "order": 2,
-        "width": 17,
-        "height": 6,
-        "label": "Sensores de humedad ambiental",
-        "chartType": "line",
-        "legend": "true",
-        "xformat": "dd HH:mm",
-        "interpolate": "linear",
-        "nodata": "Esperando datos",
-        "dot": false,
-        "ymin": "0",
-        "ymax": "100",
-        "removeOlder": "2",
-        "removeOlderPoints": "",
-        "removeOlderUnit": "86400",
-        "cutout": 0,
-        "useOneColor": false,
-        "colors": [
-            "#1f77b4",
-            "#ff8040",
-            "#000000",
-            "#2ca02c",
-            "#98df8a",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "useOldStyle": false,
-        "outputs": 1,
-        "x": 460,
-        "y": 240,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "18cf855.8c1817b",
-        "type": "ui_chart",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "group": "5f717930.432038",
-        "order": 2,
-        "width": 17,
-        "height": 6,
-        "label": "Sensores de temperatura",
-        "chartType": "line",
-        "legend": "true",
-        "xformat": "dd HH:mm",
-        "interpolate": "linear",
-        "nodata": "Esperando datos",
-        "dot": false,
-        "ymin": "-10",
-        "ymax": "50",
-        "removeOlder": "2",
-        "removeOlderPoints": "",
-        "removeOlderUnit": "86400",
-        "cutout": 0,
-        "useOneColor": false,
-        "colors": [
-            "#1f77b4",
-            "#aec7e8",
-            "#ff7f0e",
-            "#2ca02c",
-            "#98df8a",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "useOldStyle": false,
-        "outputs": 1,
-        "x": 430,
-        "y": 280,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "7818aa12.dcec64",
-        "type": "ui_gauge",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "group": "5f717930.432038",
-        "order": 1,
-        "width": 5,
-        "height": 6,
-        "gtype": "gage",
-        "title": "Temperatura actual",
-        "label": "°C",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "50",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "x": 730,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "4ccbf694.b6592",
-        "type": "ui_gauge",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "group": "48b8d719.dd9e68",
-        "order": 1,
-        "width": 5,
-        "height": 6,
-        "gtype": "gage",
-        "title": "Humedad actual",
-        "label": "%",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "100",
-        "colors": [
-            "#ca3838",
-            "#00b500",
-            "#0080c0"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "x": 660,
-        "y": 280,
-        "wires": []
-    },
-    {
-        "id": "c9475833.8a19c8",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "8a7fd06b.fec98",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "AM2315:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 380,
-        "y": 320,
-        "wires": []
-    },
-    {
-        "id": "c526523f.18e128",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "8198e827.6602a8",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "AM2315:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 380,
-        "y": 360,
-        "wires": []
-    },
-    {
-        "id": "5e9d7bd6.108aa4",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "8a7fd06b.fec98",
-        "order": 2,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "DHT22:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 380,
-        "y": 420,
-        "wires": []
-    },
-    {
-        "id": "b812495d.e9ee28",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "8198e827.6602a8",
-        "order": 2,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "DHT22:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 380,
-        "y": 460,
-        "wires": []
-    },
-    {
-        "id": "7b706a2d.46f824",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "DHT22",
-        "func": "var temperatura = {payload: msg.payload.TempDHT22, topic: \"DHT22\"};\nvar humedad = {payload: msg.payload.HumDHT22, topic: \"DHT22\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDHT22.toString();\nmsgTemp += \" °C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumDHT22.toString();\nmsgHum += \" %\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
-        "outputs": 4,
-        "noerr": 0,
-        "x": 200,
-        "y": 440,
-        "wires": [
-            [
-                "18cf855.8c1817b"
-            ],
-            [
-                "3e419a71.94b32e"
-            ],
-            [
-                "5e9d7bd6.108aa4"
-            ],
-            [
-                "b812495d.e9ee28"
-            ]
-        ],
-        "outputLabels": [
-            "Temperatura",
-            "Humedad",
-            "Texto Temp",
-            "Texto Hum"
-        ]
-    },
-    {
-        "id": "11adf4f5.854223",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "DS18B20",
-        "func": "var temperatura = {payload: msg.payload.TempDS18B20, topic: \"DS18B20\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDS18B20.toString();\nmsgTemp += \" °C\";\n\nvar temp = {payload: msgTemp};\n\nreturn [temperatura, temp];",
-        "outputs": 2,
-        "noerr": 0,
-        "x": 200,
-        "y": 500,
-        "wires": [
-            [
-                "18cf855.8c1817b"
-            ],
-            [
-                "8de16cfc.f91af"
-            ]
-        ],
-        "outputLabels": [
-            "Temperatura",
-            "Texto Temp"
-        ]
-    },
-    {
-        "id": "8de16cfc.f91af",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "8a7fd06b.fec98",
-        "order": 3,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "DS18B20:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 390,
-        "y": 520,
-        "wires": []
-    },
-    {
-        "id": "5dc072d7.644524",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "8a7fd06b.fec98",
-        "order": 4,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "BMP280:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 400,
-        "y": 560,
-        "wires": []
-    },
-    {
-        "id": "4e182703.e15f7",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "BMP280",
-        "func": "var temperatura = {payload: msg.payload.TempBMP280, topic: \"BMP280\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempBMP280.toString();\nmsgTemp += \" °C\";\n\nvar temp = {payload: msgTemp};\n\nreturn [temperatura, temp];",
-        "outputs": 2,
-        "noerr": 0,
-        "x": 200,
-        "y": 560,
-        "wires": [
-            [
-                "18cf855.8c1817b"
-            ],
-            [
-                "5dc072d7.644524"
-            ]
-        ]
-    },
-    {
-        "id": "649c8005.3531d",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "Medio Ambiente",
-        "func": "var windDirection = {payload: msg.payload.WindDirection};\n\nmsgWS = msg.payload.WindSpeed.toString();\nmsgWS += \" Km/h\";\nvar windSpeed = {payload: msgWS};\n\nmsgPS = msg.payload.Pressure.toString();\nmsgPS += \" hPa\";\nvar pressure = {payload: msgPS};\n\nreturn [windSpeed, windDirection, pressure];",
-        "outputs": 3,
-        "noerr": 0,
-        "x": 220,
-        "y": 660,
-        "wires": [
-            [
-                "93897614.c95878"
-            ],
-            [
-                "2d07ee27.7f16b2"
-            ],
-            [
-                "93d34c7d.5ed038"
-            ]
-        ],
-        "outputLabels": [
-            "Wind Speed",
-            "Wind Direction",
-            "Pressure"
-        ]
-    },
-    {
-        "id": "93897614.c95878",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "c5a925b1.644538",
-        "order": 3,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Velocidad del viento:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 480,
-        "y": 600,
-        "wires": []
-    },
-    {
-        "id": "2d07ee27.7f16b2",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "c5a925b1.644538",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Dirección del viento:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 480,
-        "y": 640,
-        "wires": []
-    },
-    {
-        "id": "93d34c7d.5ed038",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "c5a925b1.644538",
-        "order": 4,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Presión atmosférica:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 480,
-        "y": 680,
-        "wires": []
-    },
-    {
-        "id": "5b5a57ce.c5c4e8",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "Calidad del Aire",
-        "func": "msgPM = msg.payload.PM25.toString();\nmsgPM += \" ug/m3\";\nmsgCO = msg.payload.CO.toString();\nmsgCO += \" ug/m3\"\n//msgCO = msgCO.toFixed(2);\nmsgSO2 = msg.payload.SO2.toString();\n//msgSO2 = msgSO2.toFixed(2);\nmsgNO2 = msg.payload.NO2.toString();\n//msgNO2 = msgNO2.toFixed(2);\nvar CO = {payload: msgCO, topic: \"CO\"};\nvar SO2 = {payload: msgSO2};\nvar NO2 = {payload: msgNO2};\nvar PM = {payload: msgPM, topic: \"PM 2.5\"};\n\nreturn [CO, SO2, NO2, PM];\n",
-        "outputs": 4,
-        "noerr": 0,
-        "x": 220,
-        "y": 840,
-        "wires": [
-            [
-                "7bbf6e8.8d07c9",
-                "c76b4dae.711e18"
-            ],
-            [
-                "53dc21ae.c06f68"
-            ],
-            [
-                "756a5d1f.48e3f4"
-            ],
-            [
-                "3adcdaf6.87bb8e",
-                "35a9e9d5.345c8e"
-            ]
-        ],
-        "outputLabels": [
-            "CO",
-            "SO2",
-            "NO2",
-            "PM2,5"
-        ]
-    },
-    {
-        "id": "7bbf6e8.8d07c9",
-        "type": "ui_chart",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "group": "34cc840d.ecb37c",
-        "order": 2,
-        "width": 17,
-        "height": 6,
-        "label": "CO en ug/m3",
-        "chartType": "line",
-        "legend": "false",
-        "xformat": "dd HH:mm",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "0",
-        "ymax": "50",
-        "removeOlder": "2",
-        "removeOlderPoints": "",
-        "removeOlderUnit": "86400",
-        "cutout": 0,
-        "useOneColor": false,
-        "colors": [
-            "#1f77b4",
-            "#aec7e8",
-            "#ff7f0e",
-            "#2ca02c",
-            "#98df8a",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "useOldStyle": false,
-        "outputs": 1,
-        "x": 410,
-        "y": 760,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "c76b4dae.711e18",
-        "type": "ui_gauge",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "group": "34cc840d.ecb37c",
-        "order": 1,
-        "width": 5,
-        "height": 6,
-        "gtype": "gage",
-        "title": "CO",
-        "label": "ug/m3",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "50",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "17",
-        "seg2": "40",
-        "x": 570,
-        "y": 760,
-        "wires": []
-    },
-    {
-        "id": "53dc21ae.c06f68",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "36425290.5bb2c6",
-        "order": 2,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "SO2:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 390,
-        "y": 800,
-        "wires": []
-    },
-    {
-        "id": "756a5d1f.48e3f4",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "36425290.5bb2c6",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "NO2:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "x": 390,
-        "y": 840,
-        "wires": []
-    },
-    {
-        "id": "3adcdaf6.87bb8e",
-        "type": "ui_chart",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "group": "9c501d0.50fb26",
-        "order": 2,
-        "width": 17,
-        "height": 6,
-        "label": "PM2.5 en ug/m3",
-        "chartType": "line",
-        "legend": "false",
-        "xformat": "dd HH:mm",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "0",
-        "ymax": "100",
-        "removeOlder": "2",
-        "removeOlderPoints": "",
-        "removeOlderUnit": "86400",
-        "cutout": 0,
-        "useOneColor": false,
-        "colors": [
-            "#1f77b4",
-            "#aec7e8",
-            "#ff7f0e",
-            "#2ca02c",
-            "#98df8a",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "useOldStyle": false,
-        "outputs": 1,
-        "x": 420,
-        "y": 880,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "35a9e9d5.345c8e",
-        "type": "ui_gauge",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "group": "9c501d0.50fb26",
-        "order": 1,
-        "width": 5,
-        "height": 6,
-        "gtype": "gage",
-        "title": "PM2.5",
-        "label": "ug/m3",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "100",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "x": 590,
-        "y": 880,
-        "wires": []
-    },
-    {
-        "id": "759284f1.24cccc",
-        "type": "function",
-        "z": "8b40e450.7eb768",
-        "name": "DateTime",
-        "func": "var dateTime = msg.payload.DateTime;\nmsg = {payload: dateTime}\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 200,
-        "y": 920,
-        "wires": [
-            [
-                "4dba9e4b.3671f8"
-            ]
-        ]
-    },
-    {
-        "id": "4dba9e4b.3671f8",
-        "type": "ui_text",
-        "z": "8b40e450.7eb768",
-        "group": "8b13c2ef.3c2538",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "DateTime:",
-        "format": "{{msg.payload}}",
-        "layout": "row-left",
-        "x": 410,
-        "y": 920,
-        "wires": []
-    },
-    {
-        "id": "1e345db3.ec1682",
-        "type": "ui_template",
-        "z": "8b40e450.7eb768",
-        "group": "c5a925b1.644538",
-        "name": "Wind Direction Template",
-        "order": 2,
-        "width": 0,
-        "height": 0,
-        "format": "<p>&nbsp;</p>\n<p><img style=\"display: block; margin-top: auto; margin-bottom: auto; margin-left: auto; margin-right: auto;\" src={{msg.payload}} width=\"92\" height=\"92\"/></p>",
-        "storeOutMessages": true,
-        "fwdInMessages": true,
-        "templateScope": "local",
-        "x": 490,
-        "y": 720,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "92e7557b.2260c8",
-        "type": "debug",
-        "z": "8b40e450.7eb768",
-        "name": "",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 250,
-        "y": 40,
-        "wires": []
+        "id": "884d0902.b53998",
+        "type": "tab",
+        "label": "UI Control",
+        "disabled": false,
+        "info": ""
     },
     {
         "id": "6c7a9c64.470f24",
@@ -1077,6 +41,103 @@
         "out": "char",
         "addchar": false,
         "responsetimeout": "10000"
+    },
+    {
+        "id": "83f28a21.e5f61",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-dark",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#097479",
+                    "value": "#097479",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#097479",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#000000",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#0eb8c0",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#555555",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#eeeeee",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#097479",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey"
+            }
+        },
+        "site": {
+            "name": "UNAB Viña del Mar",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "false",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
     },
     {
         "id": "abe038bd.bd61c",
@@ -1193,5 +254,1267 @@
         "order": 1,
         "disabled": false,
         "hidden": false
+    },
+    {
+        "id": "fd4b8e86.2370d8",
+        "type": "ui_group",
+        "z": "",
+        "d": true,
+        "name": "Offline",
+        "tab": "99b52889.c22d4",
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "dab76242.192f18",
+        "type": "influxdb",
+        "z": "",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "estacion",
+        "name": "estacionDB",
+        "usetls": false,
+        "tls": ""
+    },
+    {
+        "id": "2576f32d.d5704c",
+        "type": "serial in",
+        "z": "8b40e450.7eb768",
+        "name": "Arduino",
+        "serial": "6c7a9c64.470f24",
+        "x": 70,
+        "y": 120,
+        "wires": [
+            [
+                "3436820a.28f09e"
+            ]
+        ]
+    },
+    {
+        "id": "3436820a.28f09e",
+        "type": "json",
+        "z": "8b40e450.7eb768",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 190,
+        "y": 120,
+        "wires": [
+            [
+                "c1dd75e9.6b6798",
+                "3a38a65e.f8d8a2"
+            ]
+        ]
+    },
+    {
+        "id": "c1dd75e9.6b6798",
+        "type": "simpletime",
+        "z": "8b40e450.7eb768",
+        "name": "",
+        "x": 370,
+        "y": 120,
+        "wires": [
+            [
+                "a2c118.1b5526e8"
+            ]
+        ]
+    },
+    {
+        "id": "a2c118.1b5526e8",
+        "type": "function",
+        "z": "8b40e450.7eb768",
+        "name": "Correción + DateTime",
+        "func": "var rainIn = context.get(\"rain\")||0;\nvar count = context.get(\"count\")||0;\nvar rainHour = context.get(\"rainHour\")||0;\n\nif(count < 60) {\n    rainIn += msg.payload.Rain;\n    count++;\n    context.set(\"rain\", rainIn);\n    context.set(\"count\", count);\n} else {\n    rainIn += msg.payload.Rain;\n    context.set(\"rain\", 0);\n    context.set(\"count\", 0);\n    rainHour = rainIn;\n}\n\nif (rainHour === 0) {\n    msg.payload.Rain = 0\n} else {\n    msg.payload.Rain = rainHour;\n}\n\nvar DateTime = msg.myyear + \"-\" + \n    msg.mymonthn + \"-\" +\n    msg.mydom + \" \" + \n    msg.mytimes;\nmsg.payload.DateTime = DateTime;\n\nmsgCO = 0.0025 * (msg.payload.CO) + 5.626;\nif (msgCO < 0.0) {\n    msgCO = 0.0;\n}\n\nmsg.payload.CO = parseFloat(msgCO.toFixed(2));\nmsgPM = 0.233 * (msg.payload.PM) + 5.01;\nmsg.payload.PM = parseFloat(msgPM.toFixed(2));\nmsgSO2 = msg.payload.SO2;\nmsg.payload.SO2 = parseFloat(msgSO2.toFixed(2));\nmsgNO2 = msg.payload.NO2;\nmsg.payload.NO2 = parseFloat(msgNO2.toFixed(2));\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 580,
+        "y": 120,
+        "wires": [
+            [
+                "b5fecf3e.49b7c8"
+            ]
+        ]
+    },
+    {
+        "id": "8c0697f2.a3b61",
+        "type": "comment",
+        "z": "8b40e450.7eb768",
+        "name": "Captura",
+        "info": "Lectura de datos desde Arduino mediante puerto Serial,\nenviado en formato json y los envía como {payload}",
+        "x": 70,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "b73d2ab6.1c75f8",
+        "type": "comment",
+        "z": "8b40e450.7eb768",
+        "name": "Link out",
+        "info": "Función nativa de Node-RED que permite realizar una\nsimple comunicación hacia otro nodo sin necesidad de\nunirlos por la \"línea\".\n\nEsta corresponde a la salida, la cual debe ser \npareada con una entrada.",
+        "x": 750,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "12140c18.9b672c",
+        "type": "comment",
+        "z": "8b40e450.7eb768",
+        "name": "Parseo",
+        "info": "Función que permite parsear el mensaje json enviado\na diversos {payloads}",
+        "x": 210,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ae3ce737.847d",
+        "type": "comment",
+        "z": "8b40e450.7eb768",
+        "name": "DateTime",
+        "info": "\"simpletime\" es una módulo descargable de Node-RED\nque permite, de forma simple obtener diversos tipos\nde mensajes con la fecha y hora.\n\nLa función \"DateTime\" parsea lo recibido desde el \nnodo \"simpletime\" para construir un mensaje con el\nformato \"YYYY-MM-DD hh:mm:ss\"",
+        "x": 460,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "b5fecf3e.49b7c8",
+        "type": "link out",
+        "z": "8b40e450.7eb768",
+        "name": "Salida de datos",
+        "links": [
+            "3fd5e53b.3cdd0a",
+            "3b5bfb73.7d6a6c",
+            "ab4dda7e.4fc008",
+            "981be990.45cfc8",
+            "dc089807.420358",
+            "3a0e2d03.2bcf7a"
+        ],
+        "x": 755,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "9074e5f0.c422f8",
+        "type": "function",
+        "z": "9f389a5.1718568",
+        "name": "Wind Direction Image",
+        "func": "var winddir = msg.payload.WindDirection;\n\nif (winddir === 0){\n    msg.payload = \"/windn.png\";\n} else if (winddir > 0 && winddir < 90){\n    msg.payload = \"/windne.png\";\n} else if (winddir == 90){\n    msg.payload = \"/winde.png\";\n} else if (winddir > 90 && winddir < 180){\n    msg.payload = \"/windse.png\";\n} else if (winddir == 180){\n    msg.payload = \"/winds.png\";\n} else if (winddir > 180 && winddir < 270){\n    msg.payload = \"/windsw.png\";\n} else if (winddir == 270){\n    msg.payload = \"/windw.png\";\n} else if (winddir > 270 && winddir < 360){\n    msg.payload = \"/windnw.png\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 220,
+        "y": 440,
+        "wires": [
+            [
+                "36578aef.4713fe"
+            ]
+        ]
+    },
+    {
+        "id": "981be990.45cfc8",
+        "type": "link in",
+        "z": "9f389a5.1718568",
+        "name": "funciones & dashboard",
+        "links": [
+            "b5fecf3e.49b7c8"
+        ],
+        "x": 55,
+        "y": 100,
+        "wires": [
+            [
+                "23aae0d.71a302",
+                "8a55dbc.6aebba8",
+                "d9bb6576.8540f",
+                "435156c8.17357",
+                "33b30d49.9187ba",
+                "9074e5f0.c422f8",
+                "c3ae092b.afa8a8",
+                "f28f302b.e6d46"
+            ]
+        ]
+    },
+    {
+        "id": "23aae0d.71a302",
+        "type": "function",
+        "z": "9f389a5.1718568",
+        "name": "AM2315",
+        "func": "var temperatura = {payload: msg.payload.TempAM2315, topic: \"AM2315\"};\nvar humedad = {payload: msg.payload.HumAM2315, topic: \"AM2315\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempAM2315.toString();\nmsgTemp += \" °C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumAM2315.toString();\nmsgHum += \" %\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
+        "outputs": 4,
+        "noerr": 0,
+        "x": 180,
+        "y": 100,
+        "wires": [
+            [
+                "d9f34eb6.292ae",
+                "cf7bf18d.e9d488"
+            ],
+            [
+                "a20a7db3.4786e8",
+                "1d41940b.5745f4"
+            ],
+            [
+                "8e58750.c48ee88"
+            ],
+            [
+                "ef95648f.c919c8"
+            ]
+        ],
+        "outputLabels": [
+            "Temperatura",
+            "Humedad",
+            "Texto Temp",
+            "Texto Hum"
+        ]
+    },
+    {
+        "id": "a20a7db3.4786e8",
+        "type": "ui_chart",
+        "z": "9f389a5.1718568",
+        "name": "",
+        "group": "48b8d719.dd9e68",
+        "order": 2,
+        "width": 17,
+        "height": 6,
+        "label": "Sensores de humedad ambiental",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "dd HH:mm",
+        "interpolate": "linear",
+        "nodata": "Esperando datos",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": "2",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#ff8040",
+            "#000000",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 880,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d9f34eb6.292ae",
+        "type": "ui_chart",
+        "z": "9f389a5.1718568",
+        "name": "",
+        "group": "5f717930.432038",
+        "order": 2,
+        "width": 17,
+        "height": 6,
+        "label": "Sensores de temperatura",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "dd HH:mm",
+        "interpolate": "linear",
+        "nodata": "Esperando datos",
+        "dot": false,
+        "ymin": "-10",
+        "ymax": "50",
+        "removeOlder": "2",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 850,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cf7bf18d.e9d488",
+        "type": "ui_gauge",
+        "z": "9f389a5.1718568",
+        "name": "",
+        "group": "5f717930.432038",
+        "order": 1,
+        "width": 5,
+        "height": 6,
+        "gtype": "gage",
+        "title": "Temperatura actual",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "50",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 610,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "1d41940b.5745f4",
+        "type": "ui_gauge",
+        "z": "9f389a5.1718568",
+        "name": "",
+        "group": "48b8d719.dd9e68",
+        "order": 1,
+        "width": 5,
+        "height": 6,
+        "gtype": "gage",
+        "title": "Humedad actual",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#ca3838",
+            "#00b500",
+            "#0080c0"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 620,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "8e58750.c48ee88",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "8a7fd06b.fec98",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "AM2315:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 360,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ef95648f.c919c8",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "8198e827.6602a8",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "AM2315:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 360,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "1bf80e60.d67512",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "8a7fd06b.fec98",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "DHT22:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 360,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "72048276.c6f5ac",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "8198e827.6602a8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "DHT22:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 360,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "8a55dbc.6aebba8",
+        "type": "function",
+        "z": "9f389a5.1718568",
+        "name": "DHT22",
+        "func": "var temperatura = {payload: msg.payload.TempDHT22, topic: \"DHT22\"};\nvar humedad = {payload: msg.payload.HumDHT22, topic: \"DHT22\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDHT22.toString();\nmsgTemp += \" °C\";\n\nmsgHum = {};\nmsgHum = msg.payload.HumDHT22.toString();\nmsgHum += \" %\";\n\nvar temp = {payload: msgTemp};\nvar hum = {payload: msgHum};\n\nreturn [temperatura, humedad, temp, hum];",
+        "outputs": 4,
+        "noerr": 0,
+        "x": 180,
+        "y": 180,
+        "wires": [
+            [
+                "d9f34eb6.292ae"
+            ],
+            [
+                "a20a7db3.4786e8"
+            ],
+            [
+                "1bf80e60.d67512"
+            ],
+            [
+                "72048276.c6f5ac"
+            ]
+        ],
+        "outputLabels": [
+            "Temperatura",
+            "Humedad",
+            "Texto Temp",
+            "Texto Hum"
+        ]
+    },
+    {
+        "id": "d9bb6576.8540f",
+        "type": "function",
+        "z": "9f389a5.1718568",
+        "name": "DS18B20",
+        "func": "var temperatura = {payload: msg.payload.TempDS18B20, topic: \"DS18B20\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempDS18B20.toString();\nmsgTemp += \" °C\";\n\nvar temp = {payload: msgTemp};\n\nreturn [temperatura, temp];",
+        "outputs": 2,
+        "noerr": 0,
+        "x": 180,
+        "y": 240,
+        "wires": [
+            [
+                "d9f34eb6.292ae"
+            ],
+            [
+                "b11cd513.1c5338"
+            ]
+        ],
+        "outputLabels": [
+            "Temperatura",
+            "Texto Temp"
+        ]
+    },
+    {
+        "id": "b11cd513.1c5338",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "8a7fd06b.fec98",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "DS18B20:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 370,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "7baff8d6.46c58",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "8a7fd06b.fec98",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "BMP280:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 360,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "435156c8.17357",
+        "type": "function",
+        "z": "9f389a5.1718568",
+        "name": "BMP280",
+        "func": "var temperatura = {payload: msg.payload.TempBMP280, topic: \"BMP280\"};\n\nmsgTemp = {};\nmsgTemp = msg.payload.TempBMP280.toString();\nmsgTemp += \" °C\";\n\nvar temp = {payload: msgTemp};\n\nreturn [temperatura, temp];",
+        "outputs": 2,
+        "noerr": 0,
+        "x": 180,
+        "y": 280,
+        "wires": [
+            [
+                "d9f34eb6.292ae"
+            ],
+            [
+                "7baff8d6.46c58"
+            ]
+        ]
+    },
+    {
+        "id": "33b30d49.9187ba",
+        "type": "function",
+        "z": "9f389a5.1718568",
+        "name": "Medio Ambiente",
+        "func": "var windDirection = {payload: msg.payload.WindDirection};\n\nmsgWS = msg.payload.WindSpeed.toString();\nmsgWS += \" Km/h\";\nvar windSpeed = {payload: msgWS};\n\nmsgPS = msg.payload.Pressure.toString();\nmsgPS += \" hPa\";\nvar pressure = {payload: msgPS};\n\nreturn [windSpeed, windDirection, pressure];",
+        "outputs": 3,
+        "noerr": 0,
+        "x": 200,
+        "y": 340,
+        "wires": [
+            [
+                "73bc58cc.ba0b9"
+            ],
+            [
+                "8561ac62.90183"
+            ],
+            [
+                "77a4748b.0a60e4"
+            ]
+        ],
+        "outputLabels": [
+            "Wind Speed",
+            "Wind Direction",
+            "Pressure"
+        ]
+    },
+    {
+        "id": "73bc58cc.ba0b9",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "c5a925b1.644538",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Velocidad del viento:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 420,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "8561ac62.90183",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "c5a925b1.644538",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Dirección del viento:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 420,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "77a4748b.0a60e4",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "c5a925b1.644538",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Presión atmosférica:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 420,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "c3ae092b.afa8a8",
+        "type": "function",
+        "z": "9f389a5.1718568",
+        "name": "Calidad del Aire",
+        "func": "msgPM = msg.payload.PM.toString();\nmsgPM += \" ug/m3\";\nmsgCO = msg.payload.CO.toString();\nmsgCO += \" ug/m3\"\n//msgCO = msgCO.toFixed(2);\nmsgSO2 = msg.payload.SO2.toString();\n//msgSO2 = msgSO2.toFixed(2);\nmsgNO2 = msg.payload.NO2.toString();\n//msgNO2 = msgNO2.toFixed(2);\nvar CO = {payload: msgCO, topic: \"CO\"};\nvar SO2 = {payload: msgSO2};\nvar NO2 = {payload: msgNO2};\nvar PM = {payload: msgPM, topic: \"PM 2.5\"};\n\nreturn [CO, SO2, NO2, PM];\n",
+        "outputs": 4,
+        "noerr": 0,
+        "x": 200,
+        "y": 500,
+        "wires": [
+            [
+                "82bbf27c.e9378",
+                "2566ca7e.fb8eae"
+            ],
+            [
+                "e3e7cd72.16d67"
+            ],
+            [
+                "7f11e4bf.9f1b3c"
+            ],
+            [
+                "e1441fde.c88bd8",
+                "bf6b834b.2e7f2"
+            ]
+        ],
+        "outputLabels": [
+            "CO",
+            "SO2",
+            "NO2",
+            "PM2,5"
+        ]
+    },
+    {
+        "id": "82bbf27c.e9378",
+        "type": "ui_chart",
+        "z": "9f389a5.1718568",
+        "name": "",
+        "group": "34cc840d.ecb37c",
+        "order": 2,
+        "width": 17,
+        "height": 6,
+        "label": "CO en ug/m3",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "dd HH:mm",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "50",
+        "removeOlder": "2",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 410,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2566ca7e.fb8eae",
+        "type": "ui_gauge",
+        "z": "9f389a5.1718568",
+        "name": "",
+        "group": "34cc840d.ecb37c",
+        "order": 1,
+        "width": 5,
+        "height": 6,
+        "gtype": "gage",
+        "title": "CO",
+        "label": "ug/m3",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "50",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "17",
+        "seg2": "40",
+        "x": 570,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "e3e7cd72.16d67",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "36425290.5bb2c6",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "SO2:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 390,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "7f11e4bf.9f1b3c",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "36425290.5bb2c6",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "NO2:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 390,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "e1441fde.c88bd8",
+        "type": "ui_chart",
+        "z": "9f389a5.1718568",
+        "name": "",
+        "group": "9c501d0.50fb26",
+        "order": 2,
+        "width": 17,
+        "height": 6,
+        "label": "PM2.5 en ug/m3",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "dd HH:mm",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": "2",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 420,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bf6b834b.2e7f2",
+        "type": "ui_gauge",
+        "z": "9f389a5.1718568",
+        "name": "",
+        "group": "9c501d0.50fb26",
+        "order": 1,
+        "width": 5,
+        "height": 6,
+        "gtype": "gage",
+        "title": "PM2.5",
+        "label": "ug/m3",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 570,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "f28f302b.e6d46",
+        "type": "function",
+        "z": "9f389a5.1718568",
+        "name": "DateTime",
+        "func": "var dateTime = msg.payload.DateTime;\nmsg = {payload: dateTime}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 200,
+        "y": 640,
+        "wires": [
+            [
+                "8f321ee5.e138c"
+            ]
+        ]
+    },
+    {
+        "id": "8f321ee5.e138c",
+        "type": "ui_text",
+        "z": "9f389a5.1718568",
+        "group": "8b13c2ef.3c2538",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "DateTime:",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "x": 370,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "36578aef.4713fe",
+        "type": "ui_template",
+        "z": "9f389a5.1718568",
+        "group": "c5a925b1.644538",
+        "name": "Wind Direction Template",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "format": "<p>&nbsp;</p>\n<p><img style=\"display: block; margin-top: auto; margin-bottom: auto; margin-left: auto; margin-right: auto;\" src={{msg.payload}} width=\"92\" height=\"92\"/></p>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 450,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "804c8ac4.ae06d8",
+        "type": "file",
+        "z": "d8a10f38.4b416",
+        "name": "Log.csv",
+        "filename": "/home/pi/Estacion/log.csv",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "false",
+        "x": 660,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b48c08fb.2b2b",
+        "type": "file",
+        "z": "d8a10f38.4b416",
+        "name": "Ultimo dato",
+        "filename": "/home/pi/Estacion/last.csv",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "true",
+        "x": 670,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "91c4af30.671df",
+        "type": "csv",
+        "z": "d8a10f38.4b416",
+        "name": "CSV sin nombres",
+        "sep": ";",
+        "hdrin": "",
+        "hdrout": false,
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM",
+        "skip": "0",
+        "strings": true,
+        "x": 470,
+        "y": 60,
+        "wires": [
+            [
+                "804c8ac4.ae06d8"
+            ]
+        ]
+    },
+    {
+        "id": "563218a4.249568",
+        "type": "fs-ops-access",
+        "z": "d8a10f38.4b416",
+        "name": "Check File",
+        "path": "/home/pi/Estacion/",
+        "pathType": "str",
+        "filename": "log.csv",
+        "filenameType": "str",
+        "read": true,
+        "write": true,
+        "throwerror": true,
+        "x": 250,
+        "y": 80,
+        "wires": [
+            [
+                "91c4af30.671df",
+                "d6af548e.82c5c8"
+            ],
+            [
+                "7c79464d.18fb9"
+            ]
+        ],
+        "outputLabels": [
+            "todo",
+            "error"
+        ]
+    },
+    {
+        "id": "7c79464d.18fb9",
+        "type": "csv",
+        "z": "d8a10f38.4b416",
+        "name": "CSV con nombres",
+        "sep": ";",
+        "hdrin": "",
+        "hdrout": true,
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM",
+        "skip": "0",
+        "strings": true,
+        "x": 470,
+        "y": 100,
+        "wires": [
+            [
+                "804c8ac4.ae06d8"
+            ]
+        ]
+    },
+    {
+        "id": "d6af548e.82c5c8",
+        "type": "csv",
+        "z": "d8a10f38.4b416",
+        "name": "CSV último dato",
+        "sep": ";",
+        "hdrin": "",
+        "hdrout": false,
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "DateTime,WindDirection,WindSpeed,Rain,Pressure,TempBMP280,HumAM2315,TempAM2315,HumDHT22,TempDHT22,TempDS18B20,CO,SO2,NO2,PM",
+        "skip": "0",
+        "strings": true,
+        "x": 460,
+        "y": 140,
+        "wires": [
+            [
+                "b48c08fb.2b2b"
+            ]
+        ]
+    },
+    {
+        "id": "7c8fba4c.72690c",
+        "type": "comment",
+        "z": "d8a10f38.4b416",
+        "name": "Link",
+        "info": "Salida del link, dentro de éste se puede declarar a\ncual link de entrada corresponde",
+        "x": 70,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "5e956729.15e24",
+        "type": "comment",
+        "z": "d8a10f38.4b416",
+        "name": "CheckFile",
+        "info": "El nodo \"Check File\" revisa si el archivo \"log.csv\"\nexiste, y dependiendo de su resultado genera el \narchivo o sigue agregando datos al archivo existente.",
+        "x": 260,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "3bf2d5bd.dc61e2",
+        "type": "comment",
+        "z": "d8a10f38.4b416",
+        "name": "CSV",
+        "info": "Diversos constructores para generar el archivo CSV.",
+        "x": 470,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "6f0e6b12.225b14",
+        "type": "comment",
+        "z": "d8a10f38.4b416",
+        "name": "Save File",
+        "info": "Nodos que guardan los archivos dentro de la carpeta\nseleccionada.",
+        "x": 660,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "172adfb9.0d05e8",
+        "type": "debug",
+        "z": "d8a10f38.4b416",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 230,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "dc089807.420358",
+        "type": "link in",
+        "z": "d8a10f38.4b416",
+        "name": "xmpp & csv",
+        "links": [
+            "b5fecf3e.49b7c8"
+        ],
+        "x": 55,
+        "y": 80,
+        "wires": [
+            [
+                "563218a4.249568",
+                "172adfb9.0d05e8"
+            ]
+        ]
+    },
+    {
+        "id": "a21fa1bc.a9bc78",
+        "type": "comment",
+        "z": "9f389a5.1718568",
+        "name": "Funciones",
+        "info": "Funciones escritas en JS que captura el dato\nrequerido, y les modifica el formato para poder\nser mostrados por la UI de Node-RED.",
+        "x": 180,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "5f843cd0.abb494",
+        "type": "comment",
+        "z": "9f389a5.1718568",
+        "name": "Dashboard",
+        "info": "Sección donde se generan los dashboard que se\nmuestran en la UI de Node-RED.\n\nel módulo de dashboard se necesita descargar",
+        "x": 480,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "abc128f6.527e08",
+        "type": "ui_ui_control",
+        "z": "884d0902.b53998",
+        "name": "",
+        "events": "all",
+        "x": 820,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "544f55df.a46c4c",
+        "type": "function",
+        "z": "884d0902.b53998",
+        "name": "Toggle Display",
+        "func": "if (msg.payload == 1) {\n    msg.payload = {\"group\":\n        {\"show\": [\n                \"UNAB_Viña_TEMPERATURA\",\n                \"UNAB_Viña_Datetime_de_muestreo\",\n                \"UNAB_Viña_HUMEDAD_AMBIENTAL\",\n                \"UNAB_Viña_MONÓXIDO_DE_CARBONO\",\n                \"UNAB_Viña_MATERIAL_PARTICULADO\",\n                \"UNAB_Viña_Datos_de_medio_ambiente\",\n                \"UNAB_Viña_Temperaturas_por_sensores\",\n                \"UNAB_Viña_Humedad_ambiental_por_sensores\",\n                \"UNAB_Viña_Calidad_del_aire_no_calibrados\"\n            ],\n        \"hide\": [\"UNAB_Viña_Offline\"]\n        }\n    }\n    return msg;\n}\n\nif (msg.payload == 2) {\n    msg.payload = {\"group\":\n        {\"hide\": [\n                \"UNAB_Viña_TEMPERATURA\",\n                \"UNAB_Viña_Datetime_de_muestreo\",\n                \"UNAB_Viña_HUMEDAD_AMBIENTAL\",\n                \"UNAB_Viña_MONÓXIDO_DE_CARBONO\",\n                \"UNAB_Viña_MATERIAL_PARTICULADO\",\n                \"UNAB_Viña_Datos_de_medio_ambiente\",\n                \"UNAB_Viña_Temperaturas_por_sensores\",\n                \"UNAB_Viña_Humedad_ambiental_por_sensores\",\n                \"UNAB_Viña_Calidad_del_aire_no_calibrados\"\n            ],\n        \"show\": [\"UNAB_Viña_Offline\"]  \n        }\n    }\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 640,
+        "y": 120,
+        "wires": [
+            [
+                "abc128f6.527e08"
+            ]
+        ]
+    },
+    {
+        "id": "22b11474.2125dc",
+        "type": "ui_template",
+        "z": "884d0902.b53998",
+        "group": "fd4b8e86.2370d8",
+        "name": "Offline Template",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<!doctype html>\n<title>Site Maintenance</title>\n\n<article>\n    <h1>We&rsquo;ll be back soon!</h1>\n    <div>\n        <p>Sorry for the inconvenience but we&rsquo;re performing some maintenance at the moment. If you need to you can always <a href=\"mailto:#\">contact us</a>, otherwise we&rsquo;ll be back online shortly!</p>\n        <p>&mdash; The Team</p>\n    </div>\n</article>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 660,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3a0e2d03.2bcf7a",
+        "type": "link in",
+        "z": "884d0902.b53998",
+        "name": "UI Control",
+        "links": [
+            "b5fecf3e.49b7c8"
+        ],
+        "x": 75,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dbaf647c.18e7e8",
+        "type": "debug",
+        "z": "884d0902.b53998",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 630,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "58aa1892.798b88",
+        "type": "switch",
+        "z": "884d0902.b53998",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 210,
+        "y": 120,
+        "wires": [
+            [
+                "261b0edc.df3862"
+            ]
+        ]
+    },
+    {
+        "id": "261b0edc.df3862",
+        "type": "trigger",
+        "z": "884d0902.b53998",
+        "op1": "1",
+        "op2": "2",
+        "op1type": "str",
+        "op2type": "str",
+        "duration": "120",
+        "extend": true,
+        "units": "s",
+        "reset": "1",
+        "bytopic": "all",
+        "name": "",
+        "x": 410,
+        "y": 120,
+        "wires": [
+            [
+                "544f55df.a46c4c",
+                "dbaf647c.18e7e8"
+            ]
+        ]
+    },
+    {
+        "id": "91b3dded.bc1348",
+        "type": "influxdb out",
+        "z": "8b40e450.7eb768",
+        "influxdb": "dab76242.192f18",
+        "name": "",
+        "measurement": "weather",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 860,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "91af2897.9b2d5",
+        "type": "function",
+        "z": "8b40e450.7eb768",
+        "name": "Station Name",
+        "func": "var Id = \"Unab\";\nmsg.payload.Name = Id;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 620,
+        "y": 200,
+        "wires": [
+            [
+                "a97d7f9b.fff92",
+                "91b3dded.bc1348",
+                "b78605e8.d2525"
+            ]
+        ]
+    },
+    {
+        "id": "3a38a65e.f8d8a2",
+        "type": "change",
+        "z": "8b40e450.7eb768",
+        "name": "",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload.Rain",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 390,
+        "y": 200,
+        "wires": [
+            [
+                "91af2897.9b2d5"
+            ]
+        ]
+    },
+    {
+        "id": "a97d7f9b.fff92",
+        "type": "debug",
+        "z": "8b40e450.7eb768",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 830,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "b78605e8.d2525",
+        "type": "file",
+        "z": "8b40e450.7eb768",
+        "name": "json",
+        "filename": "/home/pi/Estacion/datos.json",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "true",
+        "x": 810,
+        "y": 240,
+        "wires": [
+            []
+        ]
     }
 ]
