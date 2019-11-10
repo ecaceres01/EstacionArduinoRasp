@@ -1,1 +1,1 @@
-En meteorología es importante tener en cuenta que la dirección nos indica de dónde viene el viento
+En meteorologÃ­a es importante tener en cuenta que la direcciÃ³n nos indica de dÃ³nde viene el viento, no hacia donde va.
