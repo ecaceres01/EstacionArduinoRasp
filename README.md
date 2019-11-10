@@ -23,7 +23,7 @@ _Instrumentos y aplicaciones mínimas para la implementación:_
 ![Imagen de cable](Documentacion/imagenes/Usb.png)
 
 4.- En la Raspberry Pi, se recomienda habilitar SSH para el acceso desde otro dispositivo.  
-Esto se activa en Menu > Preferencias > Configuración de Raspberry Pi, en la viñeta de Interfaces, habilitar SSH  
+Esto se activa en `Menu > Preferencias > Configuración de Raspberry Pi > Interfaces`, y habilitar SSH.  
 
 5.- Instalar Node-RED, para eso se abre una terminal de la Raspberry Pi y copiar el comando que está a continuación.
 ```
@@ -36,7 +36,7 @@ bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/
 
 ![Imagen de Node](Documentacion/imagenes/NodeDireccion.png)
 
-7.- Dentro de Node-RED, en la esquina superior derecha, acceder al Menu > Menage palette, y seleccionar la viñeta Install.  
+7.- Dentro de Node-RED, en la esquina superior derecha, acceder a `Menu > Menage palette > Install`.  
 ![](Documentacion/imagenes/NodePalette.png)  
 ![](Documentacion/imagenes/nodePallete2.png)  
   
@@ -47,6 +47,5 @@ Buscar e instalar:
 - node-red-contrib-simpletime.
 
 ## Importar flujo en Node-RED
-Para importar un flujo a Node-RED se debe ir a `Menu > Import > Clipboard`
-y copiar el flujo
+Para importar un flujo a Node-RED se debe ir a `Menu > Import > Clipboard > select a file to import`, y seleccionar el archivo `estacion.json` descargado en el release.
 
