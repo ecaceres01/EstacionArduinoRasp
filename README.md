@@ -39,6 +39,12 @@ bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/
 7.- Dentro de Node-RED, en la esquina superior derecha, acceder al Menu > Menage palette, y seleccionar la viñeta Install.  
 ![](Documentacion/imagenes/NodePalette.png)  
 ![](Documentacion/imagenes/nodePallete2.png)  
+  
+Buscar e instalar:
+- node-red-dashboard.
+- node-red-contrib-fs-ops.
+- node-red-node-xmpp.
+- node-red-contrib-simpletime.
 
 ## Importar flujo en Node-RED
 Para importar un flujo a Node-RED se debe ir a `Menu > Import > Clipboard`
