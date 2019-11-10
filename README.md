@@ -4,7 +4,7 @@ _Estación de monitoreo medioambiental y de calidad del aire de bajo costo, util
 ## Pre-requisitos
 _Instrumentos y aplicaciones mínimas para la implementación:_
 - Arduino UNO.
-- Raspberry Pi con su SO raspbian.
+- Raspberry Pi con SO raspbian.
 - A lo menos un sensor de los utilizados en este proyecto.
 - Node-RED instalado en la Raspberry.
 - Cliente SSH.
@@ -22,10 +22,15 @@ _Instrumentos y aplicaciones mínimas para la implementación:_
   
 ![](Documentacion/imagenes/Usb.png)
 
-Script de instalación de node-RED para SO Debian (Raspbian):
+4.- En la Raspberry Pi, se recomienda habilitar SSH para el acceso desde otro dispositivo.  
+Esto se activa en Menu > Preferencias > Configuración de Raspberry Pi, en la viñeta de Interfaces, habilitar SSH  
+
+5.- Instalar Node-RED, para eso se abre una terminal de la Raspberry Pi y copiar el comando que está a continuación.
 ```
 bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
 ```
+
+![](Documentacion/imagenes/raspiInstallBash.png)
 Ejecuta el siguiente comando en tu carpeta de Node-RED, normalmente `~/.node-red`
 ```
 npm install node-red-node-xmpp
